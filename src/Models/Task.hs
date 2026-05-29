@@ -15,16 +15,18 @@ data Priority
     deriving (Show, Eq, Ord, Enum)
 
 data Task = Task
-    {titulo :: String,
-     desc :: String,
-     status :: Status,
-     dataLimite :: Day
+    { taskId :: Int
+    , titulo :: String
+    , desc :: String
+    , status :: Status
+    , dataLimite :: Day
     } deriving (Show)
 
-criarTask :: String -> String -> Day -> Task
-criarTask t d date = 
+criarTask :: Int -> String -> String -> Day -> Task
+criarTask tId t d date = 
     Task
-        { titulo = t
+        { taskId = tId
+        , titulo = t
         , desc = d
         , status = NaoFeito
         , dataLimite = date
