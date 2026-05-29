@@ -1,0 +1,22 @@
+cabal-version:      3.14
+name:               noxion
+version:            0.1.0.0
+license:            NONE
+author:             arturcatao
+maintainer:         arturcataodoo@gmail.com
+build-type:         Simple
+extra-doc-files:    README.md
+
+common warnings
+    ghc-options: -Wall
+
+executable noxion
+    import:           warnings
+    main-is:          Main.hs
+    other-modules:    Models.Task
+                    , Models.User
+    build-depends:
+        base ^>=4.18.3.0,
+        time ^>=1.12.2
+    hs-source-dirs:   app, src
+    default-language: Haskell2010
