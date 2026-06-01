@@ -4,17 +4,19 @@ import Data.Time
 import Models.Types
 
 data Task = Task
-    { taskId :: Int
+    { taskId :: String
+    , userId :: String
     , titulo :: String
     , desc :: String
     , status :: Status
     , dataLimite :: Maybe Day
     } deriving (Show)
 
-criarTask :: Int -> String -> String ->  Maybe Day -> Task
-criarTask tId t d date = 
+criarTask :: String -> String -> String -> String ->  Maybe Day -> Task
+criarTask tId uId t d date = 
     Task
         { taskId = tId
+        , userId = uId
         , titulo = t
         , desc = d
         , status = NaoFeito

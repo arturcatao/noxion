@@ -5,16 +5,13 @@ module Models.User
     , verificaSenha
     , userId
     , nome
-    , tasks
     ) where
-
-import Models.Task (Task)
 
 data User = User 
     { userId :: String
     , nome :: String
     , senha :: String
-    }
+    } deriving (Show, Eq)
 
 criarUser :: String -> String -> String -> User
 criarUser uId n s = 
@@ -22,7 +19,7 @@ criarUser uId n s =
         { userId = uId
         , nome = n
         , senha = s
-        }
+        } 
 
 verificaSenha :: User -> String -> Bool
 verificaSenha user s = s == senha user
