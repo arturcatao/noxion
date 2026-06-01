@@ -1,18 +1,7 @@
 module Models.Task where
 
 import Data.Time
-
-data Status 
-    = NaoFeito
-    | EmProgresso 
-    | Feito
-    deriving (Show, Eq, Enum) 
-
-data Priority
-    = Low
-    | Medium
-    | High
-    deriving (Show, Eq, Ord, Enum)
+import Models.Types
 
 data Task = Task
     { taskId :: Int
