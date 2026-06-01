@@ -8,10 +8,10 @@ data Task = Task
     , titulo :: String
     , desc :: String
     , status :: Status
-    , dataLimite :: Day
+    , dataLimite :: Maybe Day
     } deriving (Show)
 
-criarTask :: Int -> String -> String -> Day -> Task
+criarTask :: Int -> String -> String ->  Maybe Day -> Task
 criarTask tId t d date = 
     Task
         { taskId = tId

@@ -14,7 +14,6 @@ data User = User
     { userId :: String
     , nome :: String
     , senha :: String
-    , tasks :: [Task]
     }
 
 criarUser :: String -> String -> String -> User
@@ -23,7 +22,6 @@ criarUser uId n s =
         { userId = uId
         , nome = n
         , senha = s
-        , tasks = []
         }
 
 verificaSenha :: User -> String -> Bool
