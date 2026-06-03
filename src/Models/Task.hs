@@ -1,31 +1,22 @@
 module Models.Task where
 
 import Data.Time
-
-data Status 
-    = NaoFeito
-    | EmProgresso 
-    | Feito
-    deriving (Show, Eq, Enum) 
-
-data Priority
-    = Low
-    | Medium
-    | High
-    deriving (Show, Eq, Ord, Enum)
+import Models.Types
 
 data Task = Task
-    { taskId :: Int
+    { taskId :: String
+    , userId :: String
     , titulo :: String
     , desc :: String
     , status :: Status
-    , dataLimite :: Day
+    , dataLimite :: Maybe Day
     } deriving (Show)
 
-criarTask :: Int -> String -> String -> Day -> Task
-criarTask tId t d date = 
+criarTask :: String -> String -> String -> String ->  Maybe Day -> Task
+criarTask tId uId t d date = 
     Task
         { taskId = tId
+        , userId = uId
         , titulo = t
         , desc = d
         , status = NaoFeito
