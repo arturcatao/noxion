@@ -9,14 +9,14 @@ module Models.Auth
 import qualified Data.Map.Strict as Map
 
 import Models.AppState (AppState(..))
-import Models.User (User(..), verificaSenha, criarUser)
+import Models.User (verificaSenha, criarUser)
 
 login :: AppState -> String -> String -> Maybe AppState
 login state userId senha  
     | not (Map.member userId (users state)) = Nothing
     | verificaSenha user senha = Just (state { currentUser = Just user })
     | otherwise = Nothing 
-    where user = (users state) Map.! userId
+    where user = users state Map.! userId
 
 logout :: AppState -> AppState
 logout state = state {currentUser = Nothing}
