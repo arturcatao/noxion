@@ -9,16 +9,18 @@ data Task = Task
     , titulo :: String
     , desc :: String
     , status :: Status
+    , priority :: Priority
     , dataLimite :: Maybe Day
     } deriving (Show)
 
-criarTask :: String -> String -> String -> String ->  Maybe Day -> Task
-criarTask tId uId t d date = 
+criarTask :: String -> String -> String -> String -> Priority -> Maybe Day -> Task
+criarTask tId uId t d p date = 
     Task
         { taskId = tId
         , userId = uId
         , titulo = t
         , desc = d
         , status = NaoFeito
+        , priority = p
         , dataLimite = date
         }
