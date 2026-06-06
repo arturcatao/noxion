@@ -1,4 +1,4 @@
-module TaskManager where 
+module Models.TaskManager where 
 
 import Models.Task (Task(..), criarTask)
 import Models.AppState (AppState(..), tasks)
