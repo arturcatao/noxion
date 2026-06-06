@@ -7,7 +7,7 @@ import Models.User (userId)
 import Data.Time (Day)
 
 adicionarTask :: AppState -> String -> String -> Priority -> Maybe Day -> AppState
-adicionarTask estado titulo desc prioridade data = 
+adicionarTask estado titulo desc prioridade prazo = 
     case currentUser estado of
     Nothing   -> estado
     -- primeiro caso: nao tem ngm logado, então devolve o estado sem modificar
@@ -15,7 +15,7 @@ adicionarTask estado titulo desc prioridade data =
         let uid = userId user
             novoId =  show (length (tasks estado) + 1)
             -- esse id é gerado baseado no tamanho da lista, mas podemos mudar a forma de fazer isso depois
-            novaTask =  criarTask novoId uid titulo desc data
+            novaTask =  criarTask novoId uid titulo desc prazo
         in estado {tasks = tasks estado ++ [novaTask]}
 
 removerTask :: AppState -> String -> AppState
