@@ -4,7 +4,7 @@ import Data.Time
 import Models.Types
 
 data Task = Task
-    { taskId :: String
+    { taskId :: Int
     , userId :: String
     , titulo :: String
     , desc :: String
@@ -13,7 +13,7 @@ data Task = Task
     , dataLimite :: Maybe Day
     } deriving (Show)
 
-criarTask :: String -> String -> String -> String -> Priority -> Maybe Day -> Task
+criarTask :: Int -> String -> String -> String -> Priority -> Maybe Day -> Task
 criarTask tId uId t d p date = 
     Task
         { taskId = tId
