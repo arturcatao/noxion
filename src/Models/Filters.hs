@@ -30,3 +30,20 @@ sortByPriorityDesc targetUid tasks =
 sortByDeadlineAsc :: String -> [Task] -> [Task]
 sortByDeadlineAsc targetUid tasks = 
     sortBy (comparing dataLimite) (listAllTasks targetUid tasks)
+
+
+tasksIncompletas :: String -> [Task] -> [Task]
+tasksIncompletas targetUid tasks = filterByStatus targetUid NaoFeito tasks
+
+tasksEmProgresso :: String -> [Task] -> [Task]
+tasksEmProgresso targetUid tasks = filterByStatus targetUid EmProgresso tasks
+
+tasksFeitas :: String -> [Task] -> [Task]
+tasksFeitas targetUid tasks = filterByStatus targetUid Feito tasks
+
+tasksAtrasadas :: String -> Day -> [Task] -> [Task]
+tasksAtrasadas targetUid hoje tasks = 
+    filter (\t -> status t /= Feito && estaAtrasada (dataLimite t)) (listAllTasks targetUid tasks)
+  where
+    estaAtrasada Nothing     = False  -- nao tem prazo
+    estaAtrasada (Just dLim) = dLim < hoje
