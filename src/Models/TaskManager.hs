@@ -13,18 +13,19 @@ adicionarTask estado novoTitulo novaDesc prioridade prazo =
     -- primeiro caso: nao tem ngm logado, então devolve o estado sem modificar
     Just user ->
         let uid = User.userId user
-            novoId =  show (length (tasks estado) + 1)
-            -- esse id é gerado baseado no tamanho da lista, mas podemos mudar a forma de fazer isso depois
+            novoId =  case tasks estado of 
+                            [] -> 1
+                            ts -> taskId (last ts) + 1
             novaTask = criarTask novoId uid novoTitulo novaDesc prioridade prazo
         in estado {tasks = tasks estado ++ [novaTask]}
 
-removerTask :: AppState -> String -> AppState
+removerTask :: AppState -> Int -> AppState
 removerTask estado tid =
     let listaAtualizada = filter (\t -> taskId t /= tid) (tasks estado)
     -- para cada task t, ele mantem se o id for diferente
     in estado {tasks = listaAtualizada}
 
-alterarStatus:: AppState -> String -> Status -> AppState
+alterarStatus:: AppState -> Int -> Status -> AppState
 alterarStatus estado tid novoStatus =
     let listaAtualizada = map (\t -> 
             if taskId t == tid 
@@ -33,7 +34,7 @@ alterarStatus estado tid novoStatus =
             ) (tasks estado)
     in estado {tasks = listaAtualizada}
 
-alterarPrioridade :: AppState -> String -> Priority -> AppState
+alterarPrioridade :: AppState -> Int -> Priority -> AppState
 alterarPrioridade estado tid novaPrioridade =
     let listaAtualizada = map (\t -> 
             if taskId t == tid 
