@@ -1,54 +1,37 @@
 module Models.Stats
     ( contarTasks
-    , contarPorStatus
-    , tasksAtrasadas
-    , StatsGeral(..)
+    , percentualConcluidas
+    , tasksPendentes
     , gerarStatsGeral
     ) where
 
-import Data.Time (Day)
-import Models.Task (Task(..))
-import Models.Types (Status(..))
-import Models.Filters (listAllTasks)
+import Models.Task (Task)
 
--- ! ! ! se quiser contar a quantidade de tasks dos metodos, fica pro main fazer o length
+-- conta o total de tasks de uma lista (filtrada ou não)
+contarTasks :: [Task] -> Int
+contarTasks tasks = length tasks
 
--- retorna uma lista de todas as tasks do usuario
-contarTasks :: String -> [Task] -> [Task]
-contarTasks uid tasks = listAllTasks uid tasks
+-- recebe uma lista de todas as tasks e outra lista com as feitas, e calcula o percentual
+percentualConcluidas :: [Task] -> [Task] -> String
+percentualConcluidas todas feitas =
+    let total = length todas
+        percent = if total == 0 
+            then 0 
+            else (length feitas * 100) `div` total
+    in show percent ++ "% concluidas"
 
--- filtra as tasks do usuario e depois filtra pelo status, e retorna a lista
-contarPorStatus :: String -> Status -> [Task] -> [Task]
-contarPorStatus uid s tasks = filter (\t -> status t == s) (listAllTasks uid tasks)
+-- recebe uma lista de todas as tasks e outra lista com as pendentes, e calcula a razão
+tasksPendentes :: [Task] -> [Task] -> String
+tasksPendentes todas pendentes =
+    show (length pendentes) ++ "/" ++ show (length todas) ++ " tasks pendentes"
 
--- case Nothing significa que a task não tem prazo, Just dia significa que tem prazo, comparamos os dias para verificar atraso
-taskAtrasada :: Day -> Task -> Bool
-taskAtrasada hoje task =
-    case dataLimite task of
-        Nothing  -> False
-        Just dia -> dia < hoje && status task /= Feito
-
--- lista de tasks atrasadas do usuario
-tasksAtrasadas :: String -> Day -> [Task] -> [Task]
-tasksAtrasadas uid hoje tasks =
-    filter (taskAtrasada hoje) (listAllTasks uid tasks)
-
--- o main só acessa os campos e exibe
-data StatsGeral = StatsGeral
-    { totalTasks :: [Task]
-    , naoIniciadas :: [Task]
-    , emAndamento :: [Task]
-    , concluidas :: [Task]
-    , atrasadas :: [Task]
-    } deriving (Show)
-
--- chama as funções acima e gera o resumo geral
-gerarStatsGeral :: String -> Day -> [Task] -> StatsGeral
-gerarStatsGeral uid hoje tasks =
-    StatsGeral
-        { totalTasks   = contarTasks uid tasks
-        , naoIniciadas = contarPorStatus uid NaoFeito tasks
-        , emAndamento  = contarPorStatus uid EmProgresso tasks
-        , concluidas   = contarPorStatus uid Feito tasks
-        , atrasadas    = tasksAtrasadas uid hoje tasks
-        }
+-- resumo geral em string pro main
+gerarStatsGeral :: [Task] -> [Task] -> [Task] -> [Task] -> [Task] -> String
+gerarStatsGeral todas incompletas emAndamento feitas atrasadas =
+    "Total: "         ++ show (contarTasks todas)        ++ "\n" ++
+    "Nao iniciadas: " ++ show (contarTasks incompletas)  ++ "\n" ++
+    "Em andamento: "  ++ show (contarTasks emAndamento)  ++ "\n" ++
+    "Concluidas: "    ++ show (contarTasks feitas)       ++ "\n" ++
+    percentualConcluidas todas feitas                     ++ "\n" ++
+    tasksPendentes todas incompletas                      ++ "\n" ++
+    "Atrasadas: "     ++ show (contarTasks atrasadas)
