@@ -26,6 +26,7 @@ import Models.Filters
 import Models.Stats
 import Models.Task
 import Models.Types
+import qualified Models.User as User
 
 -- AUTENTICAÇÃO
 
@@ -60,36 +61,33 @@ atualizarPrioridade = alterarPrioridade
 
 -- FILTROS
 
-listarMinhasTasks :: String -> AppState -> [Task]
-listarMinhasTasks uid estado =
-    Map.findWithDefault [] uid (tasks estado)
+listarMinhasTasks :: AppState -> [Task]
+listarMinhasTasks estado =
+    Map.findWithDefault [] (User.userId user) (tasks estado)
+  where
+    Just user = currentUser estado
 
-listarPorStatus :: String -> Status -> AppState -> [Task]
-listarPorStatus uid st estado =
-    filterByStatus uid st $
-        Map.findWithDefault [] uid (tasks estado)
+listarPorStatus :: Status -> AppState -> [Task]
+listarPorStatus st estado =
+    filterByStatus st (listarMinhasTasks estado)
 
-listarPorPrioridade :: String -> Priority -> AppState -> [Task]
-listarPorPrioridade uid pr estado =
-    filterByPriority uid pr $
-        Map.findWithDefault [] uid (tasks estado)
+listarPorPrioridade :: Priority -> AppState -> [Task]
+listarPorPrioridade pr estado =
+    filterByPriority pr (listarMinhasTasks estado)
 
-listarAtrasadas :: String -> Day -> AppState -> [Task]
-listarAtrasadas uid hoje estado =
-    tasksAtrasadas uid hoje $
-        Map.findWithDefault [] uid (tasks estado)
+listarAtrasadas :: Day -> AppState -> [Task]
+listarAtrasadas hoje estado =
+    tasksAtrasadas hoje (listarMinhasTasks estado)
 
 -- ESTATÍSTICAS
 
-resumoEstatisticas :: String -> Day -> AppState -> String
-resumoEstatisticas uid hoje estado =
-    let userTasks   = Map.findWithDefault [] uid (tasks estado)
-
-        todas       = userTasks
-        incompletas = tasksIncompletas uid userTasks
-        andamento   = tasksEmProgresso uid userTasks
-        feitas      = tasksFeitas uid userTasks
-        atrasadas   = tasksAtrasadas uid hoje userTasks
+resumoEstatisticas :: Day -> AppState -> String
+resumoEstatisticas hoje estado =
+    let todas       = listarMinhasTasks estado
+        incompletas = listarPorStatus NaoFeito estado
+        andamento   = listarPorStatus EmProgresso estado
+        feitas      = listarPorStatus Feito estado
+        atrasadas   = listarAtrasadas hoje estado
 
     in gerarStatsGeral
             todas

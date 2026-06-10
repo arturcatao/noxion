@@ -24,3 +24,12 @@ criarTask tId uId t d p date =
         , priority = p
         , dataLimite = date
         }
+
+taskToString :: Task -> String
+taskToString t =
+    "[" ++ show (taskId t) ++ "] "
+    ++ titulo t
+    ++ " | "
+    ++ show (status t)
+    ++ " | "
+    ++ show (priority t)
