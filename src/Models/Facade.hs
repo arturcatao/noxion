@@ -48,13 +48,13 @@ criarNovaTask
     -> AppState
 criarNovaTask = adicionarTask
 
-excluirTask :: AppState -> Int -> AppState
+excluirTask :: AppState -> Int -> Maybe AppState
 excluirTask = removerTask
 
-atualizarStatus :: AppState -> Int -> Status -> AppState
+atualizarStatus :: AppState -> Int -> Status -> Maybe AppState
 atualizarStatus = alterarStatus
 
-atualizarPrioridade :: AppState -> Int -> Priority -> AppState
+atualizarPrioridade :: AppState -> Int -> Priority -> Maybe AppState
 atualizarPrioridade = alterarPrioridade
 
 -- FILTROS
