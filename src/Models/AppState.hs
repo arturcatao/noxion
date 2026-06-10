@@ -7,7 +7,7 @@ module Models.AppState
 import qualified Data.Map.Strict as Map
 
 import Models.User (User)
-import Models.Task (Task)
+import Models.Task (Task (Task))
 
 --toda vez que atualizar algo, um novo estado do programa tem que ser gerado
 data AppState = AppState

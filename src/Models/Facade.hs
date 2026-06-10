@@ -17,6 +17,7 @@ module Models.Facade
     ) where
 
 import Data.Time (Day)
+import qualified Data.Map.Strict as Map
 
 import Models.AppState
 import Models.Auth
@@ -61,29 +62,35 @@ atualizarPrioridade = alterarPrioridade
 
 listarMinhasTasks :: String -> AppState -> [Task]
 listarMinhasTasks uid estado =
-    listAllTasks uid (tasks estado)
+    Map.findWithDefault [] uid (tasks estado)
 
 listarPorStatus :: String -> Status -> AppState -> [Task]
 listarPorStatus uid st estado =
-    filterByStatus uid st (tasks estado)
+    filterByStatus uid st $
+        Map.findWithDefault [] uid (tasks estado)
 
 listarPorPrioridade :: String -> Priority -> AppState -> [Task]
 listarPorPrioridade uid pr estado =
-    filterByPriority uid pr (tasks estado)
+    filterByPriority uid pr $
+        Map.findWithDefault [] uid (tasks estado)
 
 listarAtrasadas :: String -> Day -> AppState -> [Task]
 listarAtrasadas uid hoje estado =
-    tasksAtrasadas uid hoje (tasks estado)
+    tasksAtrasadas uid hoje $
+        Map.findWithDefault [] uid (tasks estado)
 
 -- ESTATÍSTICAS
 
 resumoEstatisticas :: String -> Day -> AppState -> String
 resumoEstatisticas uid hoje estado =
-    let todas       = listAllTasks uid (tasks estado)
-        incompletas = tasksIncompletas uid (tasks estado)
-        andamento   = tasksEmProgresso uid (tasks estado)
-        feitas      = tasksFeitas uid (tasks estado)
-        atrasadas   = tasksAtrasadas uid hoje (tasks estado)
+    let userTasks   = Map.findWithDefault [] uid (tasks estado)
+
+        todas       = userTasks
+        incompletas = tasksIncompletas uid userTasks
+        andamento   = tasksEmProgresso uid userTasks
+        feitas      = tasksFeitas uid userTasks
+        atrasadas   = tasksAtrasadas uid hoje userTasks
+
     in gerarStatsGeral
             todas
             incompletas
