@@ -12,7 +12,7 @@ import Models.Task (Task)
 --toda vez que atualizar algo, um novo estado do programa tem que ser gerado
 data AppState = AppState
   { users       :: Map.Map String User
-  , tasks       :: [Task]
+  , tasks       :: Map.Map String [Task]
   , currentUser :: Maybe User
   } deriving (Show)
 
@@ -20,7 +20,7 @@ data AppState = AppState
 emptyState :: AppState
 emptyState = AppState
   { users       = Map.empty
-  , tasks       = []
+  , tasks       = Map.empty
   , currentUser = Nothing
   }
 
