@@ -22,6 +22,7 @@ executable noxion
                     , Models.TaskManager
                     , Models.Filters
                     , Models.Stats
+                    , Models.Facade
     build-depends:
         base ^>=4.18.3.0,
         time ^>=1.12.2,

@@ -1,2 +1,2 @@
 main :: IO()
-main = print ("compilou")
+main = print "compilou"

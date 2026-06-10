@@ -1,6 +1,5 @@
 module Models.Filters where
 
-
 import Data.List (sortBy)
 import Data.Ord (comparing, Down(..))
 import Data.Time (Day)
