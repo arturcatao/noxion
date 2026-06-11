@@ -47,7 +47,7 @@ criarNovaTask
     -> String
     -> Priority
     -> Maybe Day
-    -> AppState
+    -> Maybe AppState
 criarNovaTask = adicionarTask
 
 excluirTask :: AppState -> Int -> Maybe AppState
