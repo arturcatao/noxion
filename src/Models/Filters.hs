@@ -7,43 +7,39 @@ import Data.Time (Day)
 import Models.Types (Status(..), Priority(..))
 import Models.Task (Task(..))
 
---  retorna APENAS as tasks daquele userId específico
-listAllTasks :: String -> [Task] -> [Task]
-listAllTasks targetUid tasks = filter (\t -> userId t == targetUid) tasks
-
--- Filtra por status (apenas as tarefas do usuário)
-filterByStatus :: String -> Status -> [Task] -> [Task]
-filterByStatus targetUid targetStatus tasks = 
-    filter (\t -> status t == targetStatus) (listAllTasks targetUid tasks)
-
--- Filtra por prioridade (apenas as tarefas do usuário)
-filterByPriority :: String -> Priority -> [Task] -> [Task]
-filterByPriority targetUid targetPriority tasks = 
-    filter (\t -> priority t == targetPriority) (listAllTasks targetUid tasks)
-
--- Ordena por prioridade (maior primeiro - apenas as tarefas do usuário)
-sortByPriorityDesc :: String -> [Task] -> [Task]
-sortByPriorityDesc targetUid tasks = 
-    sortBy (comparing (Down . priority)) (listAllTasks targetUid tasks)
-
--- Ordena por deadline (mais próxima primeiro - apenas as tarefas do usuário)
-sortByDeadlineAsc :: String -> [Task] -> [Task]
-sortByDeadlineAsc targetUid tasks = 
-    sortBy (comparing dataLimite) (listAllTasks targetUid tasks)
 
 
-tasksIncompletas :: String -> [Task] -> [Task]
-tasksIncompletas targetUid tasks = filterByStatus targetUid NaoFeito tasks
+filterByStatus :: Status -> [Task] -> [Task]
+filterByStatus targetStatus tasks = filter (\t -> status t == targetStatus) tasks
 
-tasksEmProgresso :: String -> [Task] -> [Task]
-tasksEmProgresso targetUid tasks = filterByStatus targetUid EmProgresso tasks
 
-tasksFeitas :: String -> [Task] -> [Task]
-tasksFeitas targetUid tasks = filterByStatus targetUid Feito tasks
+filterByPriority :: Priority -> [Task] -> [Task]
+filterByPriority targetPriority tasks = filter (\t -> priority t == targetPriority) tasks
 
-tasksAtrasadas :: String -> Day -> [Task] -> [Task]
-tasksAtrasadas targetUid hoje tasks = 
-    filter (\t -> status t /= Feito && estaAtrasada (dataLimite t)) (listAllTasks targetUid tasks)
+
+sortByPriorityDesc :: [Task] -> [Task]
+sortByPriorityDesc tasks = sortBy (comparing (Down . priority)) tasks
+
+
+sortByDeadlineAsc :: [Task] -> [Task]
+sortByDeadlineAsc tasks = sortBy (comparing dataLimite) tasks
+
+
+
+
+tasksIncompletas :: [Task] -> [Task]
+tasksIncompletas tasks = filterByStatus NaoFeito tasks
+
+
+tasksEmProgresso :: [Task] -> [Task]
+tasksEmProgresso tasks = filterByStatus EmProgresso tasks
+
+tasksFeitas :: [Task] -> [Task]
+tasksFeitas tasks = filterByStatus Feito tasks
+
+
+tasksAtrasadas :: Day -> [Task] -> [Task]
+tasksAtrasadas hoje tasks = filter (\t -> status t /= Feito && estaAtrasada (dataLimite t)) tasks
   where
-    estaAtrasada Nothing     = False  -- nao tem prazo
+    estaAtrasada Nothing     = False
     estaAtrasada (Just dLim) = dLim < hoje
