@@ -1,2 +1,215 @@
+module Main where
+
+import Data.Time (getCurrentTime, utctDay)
+import Models.AppState (AppState, emptyState, currentUser)
+import Models.Facade
+import Models.Task (taskToString)
+import Models.Types (Status(..), Priority(..))
+import qualified Models.User as User
 main :: IO()
-main = print "compilou"
+
+main = do 
+    putStrLn "=== NOXION ==="
+    menuLogin emptyState
+
+menuLogin :: AppState -> IO()
+menuLogin state = do
+    putStrLn "\n[1] Login"
+    putStrLn "[2] Cadastrar"
+    putStrLn "[0] Sair"
+    putStr "Escolha: "
+    opcao <- getLine
+    case opcao of
+        "1" -> fazerLogin state
+        "2" -> fazerCadastro state
+        "0" -> putStrLn "Ate logo!"
+        _   -> putStrLn "Opcao invalida." >> menuLogin state
+
+fazerLogin :: AppState -> IO ()
+fazerLogin state = do
+    putStrLn "ID: "
+    uid <- getLine
+    putStrLn "Senha: "
+    senha <- getLine
+    case entrar state uid senha of
+        Nothing -> putStrLn "Credenciais invalidas." >> menuLogin state
+        Just novoState -> do
+            let nomeUser = maybe "" User.nome (currentUser novoState)
+            putStrLn ("Bem-vindo, " ++ nomeUser ++ "!")
+            menuPrincipal novoState
+
+fazerCadastro :: AppState -> IO ()
+fazerCadastro state = do
+    putStrLn "\n=== Cadastro de Usuario ==="
+
+    putStrLn "Digite seu ID: "
+    uid <- getLine
+
+    putStrLn "Digite seu nome: "
+    n <- getLine
+
+    putStrLn "Digite sua senha: "
+    senha <- getLine
+
+    case criarConta state uid n senha of
+        Nothing -> do
+            putStrLn "\nErro: ID ja existe ou dados invalidos."
+            menuLogin state
+
+        Just novoState -> do
+            putStrLn "\nConta criada com sucesso!"
+            menuPrincipal novoState
+menuPrincipal :: AppState -> IO ()
+menuPrincipal state = do
+    putStrLn "\n=== Menu Principal ==="
+    putStrLn "[1] Criar task"
+    putStrLn "[2] Listar tasks"
+    putStrLn "[3] Alterar status"
+    putStrLn "[4] Alterar prioridade"
+    putStrLn "[5] Excluir task"
+    putStrLn "[6] Filtros"
+    putStrLn "[7] Estatisticas"
+    putStrLn "[8] Logout"
+    putStrLn "[0] Sair"
+    opcao <- getLine
+    case opcao of
+        "1" -> acaoCriarTask state     >>= menuPrincipal
+        "2" -> acaoListar state        >>= menuPrincipal
+        "3" -> acaoAlterarStatus state >>= menuPrincipal
+        "4" -> acaoAlterarPrio state   >>= menuPrincipal
+        "5" -> acaoExcluir state       >>= menuPrincipal
+        "6" -> menuFiltros state       >>= menuPrincipal
+        "7" -> acaoEstatisticas state  >>= menuPrincipal
+        "8" -> putStrLn "Logout." >> menuLogin (sair state)
+        "0" -> putStrLn "Ate logo!"
+        _   -> putStrLn "Opcao invalida." >> menuPrincipal state
+
+acaoCriarTask :: AppState -> IO AppState
+acaoCriarTask state = do
+    putStrLn "Titulo: "
+    t <- getLine
+    putStrLn "Descricao: "
+    d <- getLine
+    putStrLn "Prioridade: [1] Low  [2] Medium  [3] High"
+    p <- getLine
+    let prio = case p of
+                 "2" -> Medium
+                 "3" -> High
+                 _   -> Low
+    case criarNovaTask state t d prio Nothing of
+        Nothing        -> putStrLn "Erro: sem usuario logado." >> return state
+        Just novoState -> putStrLn "Task criada!"              >> return novoState
+
+acaoListar :: AppState -> IO AppState
+acaoListar state = do
+    let ts = listarMinhasTasks state
+
+    if null ts
+        then putStrLn "Nenhuma task."
+        else do
+            putStrLn ""
+            mapM_ (putStrLn . taskToString) ts
+            putStrLn ""
+    return state
+
+acaoAlterarStatus :: AppState -> IO AppState
+acaoAlterarStatus state = do
+    putStrLn "\nID da task:"
+    tid <- readLn
+    putStrLn "\nAltere o status:"
+    putStrLn "[1] NaoFeito"
+    putStrLn "[2] EmProgresso"
+    putStrLn "[3] Feito"
+    putStr "Escolha: "
+    s <- getLine
+    let novoStatus = case s of
+            "2" -> EmProgresso
+            "3" -> Feito
+            _   -> NaoFeito
+    case atualizarStatus state tid novoStatus of
+        Nothing        -> putStrLn "\nTask nao encontrada." >> return state
+        Just novoState -> putStrLn "\nStatus atualizado." >> return novoState
+
+acaoAlterarPrio :: AppState -> IO AppState
+acaoAlterarPrio state = do
+    putStrLn "\nID da task: "
+    tid <- readLn
+    putStrLn "[1] Low  [2] Medium  [3] High"
+    putStrLn "Nova prioridade: "
+    p <- getLine
+    let novaPrio = case p of
+                     "2" -> Medium
+                     "3" -> High
+                     _   -> Low
+    case atualizarPrioridade state tid novaPrio of
+        Nothing        -> putStrLn "Task nao encontrada."   >> return state
+        Just novoState -> putStrLn "Prioridade atualizada." >> return novoState
+
+acaoExcluir :: AppState -> IO AppState
+acaoExcluir state = do
+    putStrLn "\nID da task: "
+    tid <- readLn
+    case excluirTask state tid of
+        Nothing        -> putStrLn "Task nao encontrada." >> return state
+        Just novoState -> putStrLn "Task removida."       >> return novoState
+
+acaoEstatisticas :: AppState -> IO AppState
+acaoEstatisticas state = do
+    hoje <- utctDay <$> getCurrentTime
+    putStrLn (resumoEstatisticas hoje state)
+    return state
+
+menuFiltros :: AppState -> IO AppState
+menuFiltros state = do
+    putStrLn "\n=== Filtros ==="
+    putStrLn "[1] Por status"
+    putStrLn "[2] Por prioridade"
+    putStrLn "[3] Atrasadas"
+    putStrLn "[0] Voltar"
+    putStr "Escolha: "
+    opcao <- getLine
+    case opcao of
+        "1" -> acaoFiltroStatus state
+        "2" -> acaoFiltroPrio state
+        "3" -> acaoAtrasadas state
+        "0" -> return state
+        _   -> putStrLn "Opcao invalida." >> return state
+
+acaoFiltroStatus :: AppState -> IO AppState
+acaoFiltroStatus state = do
+    putStrLn "\n[1] NaoFeito  [2] EmProgresso  [3] Feito"
+    putStr "Status: "
+    s <- getLine
+    let st = case s of
+               "2" -> EmProgresso
+               "3" -> Feito
+               _   -> NaoFeito
+    let ts = listarPorStatus st state
+    if null ts
+        then putStrLn "Nenhuma task com esse status."
+        else mapM_ (putStrLn . taskToString) ts
+    return state
+
+acaoFiltroPrio :: AppState -> IO AppState
+acaoFiltroPrio state = do
+    putStrLn "\n[1] Low  [2] Medium  [3] High"
+    putStrLn "Prioridade: "
+    p <- getLine
+    let pr = case p of
+               "2" -> Medium
+               "3" -> High
+               _   -> Low
+    let ts = listarPorPrioridade pr state
+    if null ts
+        then putStrLn "\nNenhuma task com essa prioridade.\n"
+        else mapM_ (putStrLn . taskToString) ts
+    return state
+
+acaoAtrasadas :: AppState -> IO AppState
+acaoAtrasadas state = do
+    hoje <- utctDay <$> getCurrentTime
+    let ts = listarAtrasadas hoje state
+    if null ts
+        then putStrLn "\nNenhuma task atrasada.\n"
+        else mapM_ (putStrLn . taskToString) ts
+    return state

@@ -29,7 +29,6 @@ taskToString :: Task -> String
 taskToString t =
     "[" ++ show (taskId t) ++ "] "
     ++ titulo t
-    ++ " | "
-    ++ show (status t)
-    ++ " | "
-    ++ show (priority t)
+    ++ "\nDescricao: " ++ desc t
+    ++ "\nStatus: " ++ show (status t)
+    ++ "\nPrioridade: " ++ show (priority t)
