@@ -26,6 +26,7 @@ pausar :: IO ()
 pausar = do
     putStrLn "\nPressione Enter para continuar..."
     _ <- getLine
+    limparTela
     return ()
 
 menuLogin :: AppState -> IO()
@@ -206,10 +207,12 @@ acaoAlterarPrio state = do
 acaoExcluir :: AppState -> IO AppState
 acaoExcluir state = do
     putStrLn "\nID da task: "
-    tid <- readLn
-    case excluirTask state tid of
-        Nothing        -> putStrLn "Task nao encontrada." >> pausar >> return state
-        Just novoState -> putStrLn "Task removida."       >> pausar >> return novoState
+    tidStr <- getLine
+    case reads tidStr of
+        [(tid, "")] -> case excluirTask state tid of
+            Nothing        -> putStrLn "Task nao encontrada." >> pausar >> return state
+            Just novoState -> putStrLn "Task removida."       >> pausar >> return novoState
+        _ -> putStrLn "ID invalido." >> pausar >> return state
 
 acaoEstatisticas :: AppState -> IO AppState
 acaoEstatisticas state = do
