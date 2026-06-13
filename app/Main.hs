@@ -58,26 +58,26 @@ fazerLogin state = do
 fazerCadastro :: AppState -> IO ()
 fazerCadastro state = do
     putStrLn "\n=== Cadastro de Usuario ==="
-
     putStrLn "Digite seu ID: "
     uid <- getLine
-
     putStrLn "Digite seu nome: "
     n <- getLine
-
     putStrLn "Digite sua senha: "
     senha <- getLine
     limparTela
-    case criarConta state uid n senha of
-        Nothing -> do
-            putStrLn "\nErro: ID ja existe ou dados invalidos."
-            menuLogin state
-
-        Just novoState -> do
-            putStrLn "\nConta criada com sucesso!"
-            let nomeUser = maybe "" User.nome (currentUser novoState)
-            putStrLn ("Bem-vindo, " ++ nomeUser ++ "!")
-            menuPrincipal novoState
+    if null uid || null n || null senha
+        then putStrLn "Erro: nenhum campo pode ser vazio." >> pausar >> menuLogin state
+        else case criarConta state uid n senha of
+            Nothing -> do
+                putStrLn "\nErro: ID ja existe ou dados invalidos."
+                pausar
+                menuLogin state
+            Just novoState -> do
+                putStrLn "\nConta criada com sucesso!"
+                let nomeUser = maybe "" User.nome (currentUser novoState)
+                putStrLn ("Bem-vindo, " ++ nomeUser ++ "!")
+                pausar
+                menuPrincipal novoState
 menuPrincipal :: AppState -> IO ()
 menuPrincipal state = do
     putStrLn "\n=== Menu Principal ==="
@@ -108,22 +108,25 @@ acaoCriarTask :: AppState -> IO AppState
 acaoCriarTask state = do
     putStrLn "Titulo: "
     t <- getLine
-    putStrLn "Descricao: "
-    d <- getLine
-    putStrLn "Prioridade: [1] Low  [2] Medium  [3] High"
-    p <- getLine
-    let prio = case p of
-                 "2" -> Medium
-                 "3" -> High
-                 _   -> Low
-    putStrLn "Data limite (DD/MM/AAAA) ou Enter para sem prazo: "
-    dataStr <- getLine
-    let prazo = if null dataStr
-                    then Nothing
-                    else parseTimeM True defaultTimeLocale "%d/%m/%Y" dataStr :: Maybe Day
-    case criarNovaTask state t d prio prazo of
-        Nothing        -> putStrLn "Erro: sem usuario logado." >> pausar >> return state
-        Just novoState -> putStrLn "Task criada!"              >> pausar >> return novoState
+    if null t
+        then putStrLn "Erro: titulo nao pode ser vazio." >> pausar >> return state
+        else do
+            putStrLn "Descricao: "
+            d <- getLine
+            putStrLn "Prioridade: [1] Low  [2] Medium  [3] High"
+            p <- getLine
+            let prio = case p of
+                         "2" -> Medium
+                         "3" -> High
+                         _   -> Low
+            putStrLn "Data limite (DD/MM/AAAA) ou Enter para sem prazo: "
+            dataStr <- getLine
+            let prazo = if null dataStr
+                            then Nothing
+                            else parseTimeM True defaultTimeLocale "%d/%m/%Y" dataStr :: Maybe Day
+            case criarNovaTask state t d prio prazo of
+                Nothing -> putStrLn "Erro: sem usuario logado." >> pausar >> return state
+                Just novoState -> putStrLn "Task criada!" >> pausar >> return novoState
         
 acaoListar :: AppState -> IO AppState
 acaoListar state = do
@@ -149,39 +152,56 @@ imprimirTaskPorId state tid = do
 acaoAlterarStatus :: AppState -> IO AppState
 acaoAlterarStatus state = do
     putStrLn "\nID da task:"
-    tid <- readLn
-    putStr "\n"
-    imprimirTaskPorId state tid
-    putStrLn "\nAltere o status:"
-    putStrLn "[1] NaoFeito"
-    putStrLn "[2] EmProgresso"
-    putStrLn "[3] Feito"
-    putStr "Escolha: "
-    s <- getLine
-    let novoStatus = case s of
-            "2" -> EmProgresso
-            "3" -> Feito
-            _   -> NaoFeito
-    case atualizarStatus state tid novoStatus of
-        Nothing        -> putStrLn "\nTask nao encontrada." >> pausar >> return state
-        Just novoState -> putStrLn "\nStatus atualizado." >> pausar >> return novoState
+    tidStr <- getLine
+    case reads tidStr of
+        [(tid, "")] -> do
+            let ts = listarMinhasTasks state
+                task = filter (\t -> taskId t == tid) ts
+            case task of
+                [] -> putStrLn "Task nao encontrada." >> pausar >> return state
+                (t:_) -> do
+                    putStrLn (taskToString t)
+                    putStrLn "\nAltere o status:"
+                    putStrLn "[1] NaoFeito"
+                    putStrLn "[2] EmProgresso"
+                    putStrLn "[3] Feito"
+                    putStr "Escolha: "
+                    s <- getLine
+                    let novoStatus = case s of
+                            "2" -> EmProgresso
+                            "3" -> Feito
+                            _   -> NaoFeito
+                    case atualizarStatus state tid novoStatus of
+                        Nothing        -> putStrLn "Erro." >> pausar >> return state
+                        Just novoState -> putStrLn "Status atualizado." >> pausar >> return novoState
+        _ -> putStrLn "ID invalido." >> pausar >> return state
+
 
 acaoAlterarPrio :: AppState -> IO AppState
 acaoAlterarPrio state = do
     putStrLn "\nID da task: "
-    tid <- readLn
-    putStr "\n"
-    imprimirTaskPorId state tid
-    putStrLn "[1] Low  [2] Medium  [3] High"
-    putStrLn "Nova prioridade: "
-    p <- getLine
-    let novaPrio = case p of
-                     "2" -> Medium
-                     "3" -> High
-                     _   -> Low
-    case atualizarPrioridade state tid novaPrio of
-        Nothing        -> putStrLn "Task nao encontrada."   >> pausar >> return state
-        Just novoState -> putStrLn "Prioridade atualizada." >> pausar >> return novoState
+    tidStr <- getLine
+    case reads tidStr of
+        [(tid, "")] -> do
+            let ts = listarMinhasTasks state
+                task = filter (\t -> taskId t == tid) ts
+            case task of
+                [] -> putStrLn "Task nao encontrada." >> pausar >> return state
+                (t:_) -> do
+                    putStrLn (taskToString t)
+                    putStrLn "[1] Low"
+                    putStrLn "[2] Medium"
+                    putStrLn "[3] High"
+                    putStrLn "Nova prioridade: "
+                    p <- getLine
+                    let novaPrio = case p of
+                                     "2" -> Medium
+                                     "3" -> High
+                                     _   -> Low
+                    case atualizarPrioridade state tid novaPrio of
+                        Nothing        -> putStrLn "Erro." >> pausar >> return state
+                        Just novoState -> putStrLn "Prioridade atualizada." >> pausar >> return novoState
+        _ -> putStrLn "ID invalido." >> pausar >> return state
 
 acaoExcluir :: AppState -> IO AppState
 acaoExcluir state = do
