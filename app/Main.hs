@@ -64,7 +64,7 @@ fazerCadastro state = do
 
     putStrLn "Digite sua senha: "
     senha <- getLine
-
+    limparTela
     case criarConta state uid n senha of
         Nothing -> do
             putStrLn "\nErro: ID ja existe ou dados invalidos."
