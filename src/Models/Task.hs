@@ -1,6 +1,7 @@
 module Models.Task where
 
 import Data.Time
+import Data.Time.Format (formatTime, defaultTimeLocale)
 import Models.Types
 
 data Task = Task
@@ -32,3 +33,9 @@ taskToString t =
     ++ "\nDescricao: " ++ desc t
     ++ "\nStatus: " ++ show (status t)
     ++ "\nPrioridade: " ++ show (priority t)
+    ++ "\nPrazo: " ++ prazoStr
+    ++ "\n"
+  where
+    prazoStr = case dataLimite t of
+        Nothing  -> "sem prazo"
+        Just dia -> formatTime defaultTimeLocale "%d/%m/%Y" dia

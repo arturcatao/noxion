@@ -26,6 +26,7 @@ executable noxion
     build-depends:
         base ^>=4.18.3.0,
         time ^>=1.12.2,
-        containers ^>=0.6
+        containers ^>=0.6,
+        process ^>=1.6
     hs-source-dirs:   app, src
     default-language: Haskell2010
