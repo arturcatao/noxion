@@ -7,6 +7,7 @@ import Models.Task (taskToString, taskId)
 import Models.Types (Status(..), Priority(..))
 import qualified Models.User as User
 import System.Process (system)
+import System.Info (os)
 
 main :: IO()
 
@@ -16,7 +17,9 @@ main = do
 
 limparTela :: IO ()
 limparTela = do
-    _ <- system "cls"
+    _ <- if os == "mingw32"
+            then system "cls"
+            else system "clear"  
     return ()
 
 pausar :: IO ()
