@@ -198,7 +198,7 @@ acaoListar state = do
             pausar
     return state
 
-imprimirTaskPorId :: AppState -> Int -> IO ()
+imprimirTaskPorId :: AppState -> Int -> IO () --função de apoio para melhor entendimento
 imprimirTaskPorId state tid = do
     let ts = listarMinhasTasks state
         task = filter (\t -> taskId t == tid) ts
@@ -206,8 +206,18 @@ imprimirTaskPorId state tid = do
         []    -> putStrLn "Task nao encontrada."
         (t:_) -> putStrLn (taskToString t)
 
+listarSemPausa :: AppState -> IO () --função de apoio para melhor entendimento
+listarSemPausa state = do
+    let ts = listarMinhasTasks state
+    if null ts
+        then putStrLn "Nenhuma task."
+        else do
+            putStrLn ""
+            mapM_ (putStrLn . taskToString) ts
+            putStrLn ""
 acaoAlterarStatus :: AppState -> IO AppState
 acaoAlterarStatus state = do
+    _ <- listarSemPausa state
     putStrLn "\nID da task:"
     tidStr <- getLine
     case reads tidStr of
@@ -217,6 +227,7 @@ acaoAlterarStatus state = do
             case task of
                 [] -> putStrLn "Task nao encontrada." >> pausar >> return state
                 (t:_) -> do
+                    limparTela
                     putStrLn (taskToString t)
                     putStrLn "\nAltere o status:"
                     putStrLn "[1] NaoFeito"
@@ -236,6 +247,7 @@ acaoAlterarStatus state = do
 
 acaoAlterarPrio :: AppState -> IO AppState
 acaoAlterarPrio state = do
+    _ <- listarSemPausa state
     putStrLn "\nID da task: "
     tidStr <- getLine
     case reads tidStr of
@@ -245,6 +257,7 @@ acaoAlterarPrio state = do
             case task of
                 [] -> putStrLn "Task nao encontrada." >> pausar >> return state
                 (t:_) -> do
+                    limparTela
                     putStrLn (taskToString t)
                     putStrLn "[1] Low"
                     putStrLn "[2] Medium"
@@ -262,6 +275,7 @@ acaoAlterarPrio state = do
 
 acaoExcluir :: AppState -> IO AppState
 acaoExcluir state = do
+    _ <- listarSemPausa state
     putStrLn "\nID da task: "
     tidStr <- getLine
     case reads tidStr of
