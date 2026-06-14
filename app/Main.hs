@@ -49,6 +49,7 @@ fazerLogin state = do
     uid <- getLine
     putStrLn "Senha: "
     senha <- getLine
+    limparTela
     case entrar state uid senha of
         Nothing -> putStrLn "Credenciais invalidas." >> menuLogin state
         Just novoState -> do
