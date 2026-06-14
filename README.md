@@ -4,7 +4,8 @@
 
 NOXION é um sistema de gerenciamento de tarefas (tasks) que permite ao usuário cadastrar e acompanhar tarefas, atribuir diferentes prioridades e listar as tarefas.
 
-Projeto para a disciplina Paradigmas de Linguagens de Programação na UFCG.
+Projeto para a disciplina Paradigmas de Linguagens de Programação do curso 
+de Ciência da Computação UFCG.
 
 Este `README` explica como preparar o ambiente, construir e executar o projeto localmente.
 
@@ -37,8 +38,8 @@ cabal run noxion
 **Estrutura do projeto**
 
 - `noxion.cabal` — configuração do pacote Haskell.
-- `app/Main.hs` — ponto de entrada do executável (se presente).
-- `src/` — código-fonte do projeto (ex.: `src/Models/`, módulos `.hs`).
+- `app/Main.hs` — ponto de entrada do executável.
+- `src/` — código-fonte do projeto.
 - `dist-newstyle/` — diretório de build gerado pelo `cabal`.
 
 **Solução de problemas comuns**
