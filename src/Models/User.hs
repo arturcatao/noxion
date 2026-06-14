@@ -3,12 +3,12 @@ module Models.User
     ( User
     , criarUser
     , verificaSenha
-    , login
+    , loginU
     , nome
     ) where
 
 data User = User 
-    { login :: String
+    { loginU :: String
     , nome :: String
     , senha :: String
     } deriving (Show, Eq)
@@ -16,7 +16,7 @@ data User = User
 criarUser :: String -> String -> String -> User
 criarUser l n s = 
     User
-        { login = l
+        { loginU = l
         , nome = n
         , senha = s
         } 

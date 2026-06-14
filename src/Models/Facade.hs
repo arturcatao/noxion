@@ -63,7 +63,7 @@ atualizarPrioridade = alterarPrioridade
 
 listarMinhasTasks :: AppState -> [Task]
 listarMinhasTasks estado =
-    Map.findWithDefault [] (User.userId user) (tasks estado)
+    Map.findWithDefault [] (User.loginU user) (tasks estado)
   where
     Just user = currentUser estado
 

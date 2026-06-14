@@ -6,7 +6,7 @@ import Models.Types
 
 data Task = Task
     { taskId :: Int
-    , userId :: String
+    , loginU :: String
     , titulo :: String
     , desc :: String
     , status :: Status
@@ -15,10 +15,10 @@ data Task = Task
     } deriving (Show)
 
 criarTask :: Int -> String -> String -> String -> Priority -> Maybe Day -> Task
-criarTask tId uId t d p date = 
+criarTask tId l t d p date = 
     Task
         { taskId = tId
-        , userId = uId
+        , loginU = l
         , titulo = t
         , desc = d
         , status = NaoFeito

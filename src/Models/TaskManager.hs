@@ -16,7 +16,7 @@ adicionarTask estado novoTitulo novaDesc prioridade prazo =
     case currentUser estado of
     Nothing   -> Nothing
     Just user ->
-        let uid = User.userId user
+        let uid = User.loginU user
             userTasks =
                 Map.findWithDefault [] uid (tasks estado)
 
