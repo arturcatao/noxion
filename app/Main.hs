@@ -146,7 +146,6 @@ menuPrincipal state = do
     putStrLn  " ║      [0] Sair                    ║"
     putStrLn  " ╚══════════════════════════════════╝"
     putStrLn ""
-    putStr "  Escolha: "
     opcao <- getLine
     limparTela
     case opcao of
