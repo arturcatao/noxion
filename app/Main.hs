@@ -13,6 +13,7 @@ main :: IO()
 
 main = do 
     putStrLn "=== NOXION ==="
+    putStrLn "\n"
     menuLogin emptyState
 
 limparTela :: IO ()
@@ -29,17 +30,30 @@ pausar = do
     limparTela
     return ()
 
-menuLogin :: AppState -> IO()
+menuLogin :: AppState -> IO ()
 menuLogin state = do
-    putStrLn "\n[1] Login"
-    putStrLn "[2] Cadastrar"
-    putStrLn "[0] Sair"
-    putStr "Escolha: "
+    putStrLn ""
+    putStrLn "  ███╗   ██╗ ██████╗ ██╗  ██╗██╗ ██████╗ ███╗   ██╗"
+    putStrLn "  ████╗  ██║██╔═══██╗╚██╗██╔╝██║██╔═══██╗████╗  ██║"
+    putStrLn "  ██╔██╗ ██║██║   ██║ ╚███╔╝ ██║██║   ██║██╔██╗ ██║"
+    putStrLn "  ██║╚██╗██║██║   ██║ ██╔██╗ ██║██║   ██║██║╚██╗██║"
+    putStrLn "  ██║ ╚████║╚██████╔╝██╔╝ ██╗██║╚██████╔╝██║ ╚████║"
+    putStrLn "  ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝"
+    putStrLn ""
+    putStrLn "  ╔══════════════════════════════════╗"
+    putStrLn "  ║          [1] Login               ║"
+    putStrLn "  ║          [2] Cadastrar           ║"
+    putStrLn "  ║          [3] Ajuda               ║"
+    putStrLn "  ║          [0] Sair                ║"
+    putStrLn "  ╚══════════════════════════════════╝"
+    putStrLn ""
+    putStr "  Escolha: "
     opcao <- getLine
     limparTela
     case opcao of
         "1" -> fazerLogin state
         "2" -> fazerCadastro state
+        "3" -> mostrarAjuda state
         "0" -> putStrLn "Ate logo!"
         _   -> putStrLn "Opcao invalida." >> menuLogin state
 
@@ -80,6 +94,39 @@ fazerCadastro state = do
                 putStrLn ("Bem-vindo, " ++ nomeUser ++ "!")
                 pausar
                 menuPrincipal novoState
+
+mostrarAjuda :: AppState -> IO ()
+mostrarAjuda state = do
+    putStrLn "\n=== Sobre o Noxion ==="
+    putStrLn ""
+    putStrLn "Noxion e um sistema de gerenciamento de tarefas via terminal,"
+    putStrLn "desenvolvido em Haskell."
+    putStrLn ""
+    putStrLn "--- Como usar ---"
+    putStrLn ""
+    putStrLn "Cadastro:"
+    putStrLn "  1. Escolha a opcao [2] Cadastrar no menu principal"
+    putStrLn "  2. Digite um login unico (sera usado para entrar no sistema)"
+    putStrLn "  3. Digite seu nome"
+    putStrLn "  4. Digite uma senha"
+    putStrLn "  Apos o cadastro, voce sera logado automaticamente."
+    putStrLn ""
+    putStrLn "Login:"
+    putStrLn "  1. Escolha a opcao [1] Login no menu principal"
+    putStrLn "  2. Digite seu login"
+    putStrLn "  3. Digite sua senha"
+    putStrLn "  Caso as credenciais sejam invalidas, voce retorna ao menu."
+    putStrLn ""
+    putStrLn "--- Funcionalidades ---"
+    putStrLn ""
+    putStrLn "  - Criacao de tasks com titulo, descricao, prioridade e prazo"
+    putStrLn "  - Alteracao de status: Nao Feito, Em Progresso, Feito"
+    putStrLn "  - Alteracao de prioridade: Low, Medium, High"
+    putStrLn "  - Filtros por status, prioridade e tasks atrasadas"
+    putStrLn "  - Estatisticas gerais das suas tasks"
+    pausar
+    menuLogin state
+
 menuPrincipal :: AppState -> IO ()
 menuPrincipal state = do
     putStrLn "\n=== Menu Principal ==="
