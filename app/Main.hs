@@ -45,12 +45,12 @@ menuLogin state = do
 
 fazerLogin :: AppState -> IO ()
 fazerLogin state = do
-    putStrLn "ID: "
-    uid <- getLine
+    putStrLn "login: "
+    l <- getLine
     putStrLn "Senha: "
     senha <- getLine
     limparTela
-    case entrar state uid senha of
+    case entrar state l senha of
         Nothing -> putStrLn "Credenciais invalidas." >> menuLogin state
         Just novoState -> do
             let nomeUser = maybe "" User.nome (currentUser novoState)
@@ -60,16 +60,16 @@ fazerLogin state = do
 fazerCadastro :: AppState -> IO ()
 fazerCadastro state = do
     putStrLn "\n=== Cadastro de Usuario ==="
-    putStrLn "Digite seu ID: "
-    uid <- getLine
+    putStrLn "Digite seu login: "
+    l <- getLine
     putStrLn "Digite seu nome: "
     n <- getLine
     putStrLn "Digite sua senha: "
     senha <- getLine
     limparTela
-    if null uid || null n || null senha
+    if null l || null n || null senha
         then putStrLn "Erro: nenhum campo pode ser vazio." >> pausar >> menuLogin state
-        else case criarConta state uid n senha of
+        else case criarConta state l n senha of
             Nothing -> do
                 putStrLn "\nErro: ID ja existe ou dados invalidos."
                 pausar
