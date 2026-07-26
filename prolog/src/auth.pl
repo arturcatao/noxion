@@ -1,5 +1,5 @@
 :- module(auth, [
-    cadastrar_user/3,
+    cadastrar_usuario/3,
     login/2,
     logout/0,
     user_loggado/1
@@ -21,6 +21,6 @@ login(Login, Senha) :-
     user(Login, _, Senha),
     assertz(logged_in(Login)).
 
-logout :- retractall(logged_in(_))
+logout :- retractall(logged_in(_)).
 
-user_loggado(Login) :- logged_in(Login)
+user_loggado(Login) :- logged_in(Login).
