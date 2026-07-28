@@ -58,3 +58,328 @@ tratar_opcao_login("0") :-
 tratar_opcao_login(_) :-
     writeln('Opção inválida.'),
     menu_login.
+
+fazer_login :-
+    writeln('Login:'),
+    read_line_to_string(user_input, Login),
+
+    writeln('Senha:'),
+    read_line_to_string(user_input, Senha),
+
+    limpar_tela,
+
+    ( entrar(Login, Senha) ->
+        usuario_logado(Login),
+        format('Bem-vindo, ~w!~n', [Login]),
+        menu_principal
+    ;
+        writeln('Credenciais inválidas.'),
+        pausar,
+        menu_login
+    ).
+
+fazer_cadastro :-
+    writeln('=== Cadastro de Usuario ==='),
+
+    writeln('Digite seu login:'),
+    read_line_to_string(user_input, Login),
+
+    writeln('Digite seu nome:'),
+    read_line_to_string(user_input, Nome),
+
+    writeln('Digite sua senha:'),
+    read_line_to_string(user_input, Senha),
+
+    limpar_tela,
+
+    ( Login == "" ; Nome == "" ; Senha == "" ) ->
+        writeln('Erro: nenhum campo pode ser vazio.'),
+        pausar,
+        menu_login
+    ;
+        ( criar_conta(Login, Nome, Senha) ->
+            format('Conta criada com sucesso!~n'),
+            format('Bem-vindo, ~w!~n', [Nome]),
+            pausar,
+            menu_principal
+        ;
+            writeln('Erro: login já existe ou dados inválidos.'),
+            pausar,
+            menu_login
+        ).
+
+mostrar_ajuda :-
+    nl,
+    writeln('  ╔══════════════════════════════════════════════════════╗'),
+    writeln('  ║                 NOXION - Ajuda                       ║'),
+    writeln('  ╠══════════════════════════════════════════════════════╣'),
+    writeln('  ║  Noxion e um sistema de gerenciamento de tarefas    ║'),
+    writeln('  ║  via terminal, desenvolvido em Prolog.              ║'),
+    writeln('  ╠══════════════════════════════════════════════════════╣'),
+    writeln('  ║  CADASTRO                                           ║'),
+    writeln('  ║    1. Escolha [2] Cadastrar no menu inicial         ║'),
+    writeln('  ║    2. Digite um login unico                         ║'),
+    writeln('  ║    3. Digite seu nome                               ║'),
+    writeln('  ║    4. Digite uma senha                              ║'),
+    writeln('  ║    Apos o cadastro, voce sera logado automaticamente║'),
+    writeln('  ╠══════════════════════════════════════════════════════╣'),
+    writeln('  ║  LOGIN                                              ║'),
+    writeln('  ║    1. Escolha [1] Login no menu inicial             ║'),
+    writeln('  ║    2. Digite seu login                              ║'),
+    writeln('  ║    3. Digite sua senha                              ║'),
+    writeln('  ║    Credenciais invalidas retornam ao menu           ║'),
+    writeln('  ╠══════════════════════════════════════════════════════╣'),
+    writeln('  ║  FUNCIONALIDADES                                    ║'),
+    writeln('  ║    - Criar tasks com titulo, descricao e prazo      ║'),
+    writeln('  ║    - Status: Nao Feito, Em Progresso, Feito         ║'),
+    writeln('  ║    - Prioridade: Baixa, Media, Alta                 ║'),
+    writeln('  ║    - Filtros por status, prioridade e atraso        ║'),
+    writeln('  ║    - Estatisticas gerais das suas tasks             ║'),
+    writeln('  ╚══════════════════════════════════════════════════════╝'),
+    pausar,
+    menu_login.
+
+menu_principal :-
+    usuario_logado(Login),
+    user(Login, Nome, _),
+
+    string_length(Nome, Tamanho),
+    Espacos is max(0, 19 - Tamanho),
+    format('~*c', [Espacos, 0 ], Padding),
+
+    nl,
+    writeln(' ╔══════════════════════════════════╗'),
+    writeln(' ║         NOXION - Tasks          ║'),
+    format(' ║         Ola, ~w~w ║~n', [Nome, Padding]),
+    writeln(' ╠══════════════════════════════════╣'),
+    writeln(' ║      [1] Criar task             ║'),
+    writeln(' ║      [2] Listar tasks           ║'),
+    writeln(' ║      [3] Alterar status         ║'),
+    writeln(' ║      [4] Alterar prioridade     ║'),
+    writeln(' ║      [5] Excluir task           ║'),
+    writeln(' ║      [6] Filtros                ║'),
+    writeln(' ║      [7] Estatisticas           ║'),
+    writeln(' ║      [8] Logout                 ║'),
+    writeln(' ║      [0] Sair                   ║'),
+    writeln(' ╚══════════════════════════════════╝'),
+    nl,
+
+    read_line_to_string(user_input, Opcao),
+
+    limpar_tela,
+
+    tratar_opcao_principal(Opcao).
+
+tratar_opcao_principal("1") :-
+    acao_criar_task,
+    menu_principal.
+
+tratar_opcao_principal("2") :-
+    acao_listar,
+    menu_principal.
+
+tratar_opcao_principal("3") :-
+    acao_alterar_status,
+    menu_principal.
+
+tratar_opcao_principal("4") :-
+    acao_alterar_prioridade,
+    menu_principal.
+
+tratar_opcao_principal("5") :-
+    acao_excluir,
+    menu_principal.
+
+tratar_opcao_principal("6") :-
+    menu_filtros,
+    menu_principal.
+
+tratar_opcao_principal("7") :-
+    acao_estatisticas,
+    menu_principal.
+
+tratar_opcao_principal("8") :-
+    sair,
+    writeln('Logout.'),
+    menu_login.
+
+tratar_opcao_principal("0") :-
+    writeln('Até logo!').
+
+tratar_opcao_principal(_) :-
+    writeln('Opção inválida.'),
+    menu_principal.
+
+acao_criar_task :-
+    writeln('Titulo:'),
+    read_line_to_string(user_input, Titulo),
+
+    ( Titulo == "" ->
+        writeln('Erro: titulo nao pode ser vazio.'),
+        pausar
+    ;
+        writeln('Descricao:'),
+        read_line_to_string(user_input, Descricao),
+
+        writeln('Prioridade: [1] Low  [2] Medium  [3] High'),
+        read_line_to_string(user_input, OpcaoPrio),
+
+        escolher_prioridade(OpcaoPrio, Prioridade),
+
+        writeln('Data limite (DD/MM/AAAA) ou Enter para sem prazo:'),
+        read_line_to_string(user_input, Prazo),
+
+        ( criar_nova_task(Titulo, Descricao, Prioridade, Prazo) ->
+            writeln('Task criada!'),
+            pausar
+        ;
+            writeln('Erro: sem usuario logado.'),
+            pausar
+        )
+    ).
+
+escolher_prioridade("2", media).
+escolher_prioridade("3", alta).
+escolher_prioridade(_, baixa).
+
+acao_listar :-
+    listar_minhas_tasks(Tarefas),
+
+    ( Tarefas == [] ->
+        writeln('Nenhuma task.'),
+        pausar
+    ;
+        nl,
+        imprimir_tasks(Tarefas),
+        nl,
+        pausar
+    ).
+
+imprimir_task_por_id(Id) :-
+    listar_minhas_tasks(Tarefas),
+    imprimir_task(Tarefas, Id).
+
+imprimir_task([], _) :-
+    writeln('Task nao encontrada.').
+
+imprimir_task([Task|_], Id) :-
+    task_id(Task, Id),
+    imprimir_task(Task).
+
+imprimir_task([_|Resto], Id) :-
+    imprimir_task(Resto, Id).
+
+listar_sem_pausa :-
+    listar_minhas_tasks(Tarefas),
+
+    ( Tarefas == [] ->
+        writeln('Nenhuma task.')
+    ;
+        nl,
+        imprimir_tasks(Tarefas),
+        nl
+    ).
+
+acao_alterar_status(State, NovoState) :-
+    listar_sem_pausa(State),
+    
+    write('\nID da task: '),
+    read_line_to_string(user_input, TidStr),
+
+    number_string(Tid, TidStr),
+
+    listar_minhas_tasks(State, Tasks),
+
+    ( 
+        member(Task, Tasks),
+        task_id(Task, Tid)
+    ->
+        limpar_tela,
+
+        task_to_string(Task, Texto),
+        writeln(Texto),
+
+        writeln('\nAltere o status:'),
+        writeln('[1] NaoFeito'),
+        writeln('[2] EmProgresso'),
+        writeln('[3] Feito'),
+        write('Escolha: '),
+
+        read_line_to_string(user_input, S),
+
+        novo_status(S, Status),
+
+        (
+            atualizar_status(State, Tid, Status, NovoState)
+        ->
+            writeln('Status atualizado.'),
+            pausar
+        ;
+            writeln('Erro.'),
+            pausar,
+            NovoState = State
+        )
+
+    ;
+        writeln('Task nao encontrada.'),
+        pausar,
+        NovoState = State
+    ).
+
+novo_status("2", emProgresso).
+novo_status("3", feito).
+novo_status(_, naoFeito).
+
+acao_alterar_prio(State, NovoState) :-
+    listar_sem_pausa(State),
+    write('\nID da task: '),
+    read_line_to_string(user_input, TidStr),
+
+    (
+        number_string(Tid, TidStr)
+    ->
+        listar_minhas_tasks(State, Tasks),
+
+        (
+            member(Task, Tasks),
+            task_id(Task, Tid)
+        ->
+            limpar_tela,
+            task_to_string(Task, Texto),
+            writeln(Texto),
+
+            writeln('[1] Low'),
+            writeln('[2] Medium'),
+            writeln('[3] High'),
+            write('Nova prioridade: '),
+
+            read_line_to_string(user_input, P),
+            nova_prio(P, NovaPrio),
+
+            (
+                atualizar_prioridade(State, Tid, NovaPrio, NovoState)
+            ->
+                writeln('Prioridade atualizada.'),
+                pausar
+            ;
+                writeln('Erro.'),
+                pausar,
+                NovoState = State
+            )
+
+        ;
+            writeln('Task nao encontrada.'),
+            pausar,
+            NovoState = State
+        )
+
+    ;
+        writeln('ID invalido.'),
+        pausar,
+        NovoState = State
+    ).
+
+
+nova_prio("2", medium).
+nova_prio("3", high).
+nova_prio(_, low).
