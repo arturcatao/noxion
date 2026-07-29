@@ -70,7 +70,6 @@ fazer_login :-
     limpar_tela,
 
     ( entrar(Login, Senha) ->
-        usuario_logado(Login),
         format('Bem-vindo, ~w!~n', [Login]),
         menu_principal
     ;
@@ -110,6 +109,8 @@ campos_vazios(Login, Nome, Senha) :-
 
 cadastrar_e_entrar(Login, Nome, Senha) :-
     criar_conta(Login, Nome, Senha),
+    !,
+    entrar(Login, Senha),
     format('Conta criada com sucesso!~n'),
     format('Bem-vindo, ~w!~n', [Nome]),
     pausar,
