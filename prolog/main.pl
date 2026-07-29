@@ -9,13 +9,12 @@ main :-
     menu_login.
 
 limpar_tela :-
-    process_create(path(cmd), ['/c','cls'], []).
+    current_prolog_flag(windows, true),
+    !,
+    process_create(path(cmd), ['/c', 'cls'], []).
 
 limpar_tela :-
-    ( current_prolog_flag(windows, true)
-    -> process_create(path(cmd), ['/c','cls'], [])
-    ;  process_create(path(clear), [], [])
-    ).
+    process_create(path(clear), [], []).
 
 
 pausar :-
