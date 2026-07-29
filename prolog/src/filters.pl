@@ -102,3 +102,4 @@ filtrar_atrasadas(Tarefas) :-
 br_para_iso(Br, Iso) :-
     split_string(Br, "/", "", [Dia, Mes, Ano]),
     format(string(Iso), "~w-~w-~w", [Ano, Mes, Dia]).
+    
