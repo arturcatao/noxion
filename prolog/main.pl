@@ -421,8 +421,21 @@ acao_excluir :-
     ).
 
 acao_estatisticas :-
-    resumo_estatisticas(Resumo),
-    writeln(Resumo),
+    resumo_estatisticas(resumo(TotalN, IncompletasN, AndamentoN, FeitasN, AtrasadasN, Percent, NPendentes, TotalPendentes)),
+    nl,
+    writeln('  ╔══════════════════════════════════╗'),
+    writeln('  ║        NOXION - Estatísticas     ║'),
+    writeln('  ╠══════════════════════════════════╣'),
+    format('  ║  Total de tasks:        ~w~n', [TotalN]),
+    format('  ║  Não iniciadas:         ~w~n', [IncompletasN]),
+    format('  ║  Em progresso:          ~w~n', [AndamentoN]),
+    format('  ║  Concluídas:            ~w~n', [FeitasN]),
+    format('  ║  Atrasadas:             ~w~n', [AtrasadasN]),
+    writeln('  ╠══════════════════════════════════╣'),
+    format('  ║  Percentual concluído:  ~w%~n', [Percent]),
+    format('  ║  Pendentes:             ~w de ~w~n', [NPendentes, TotalPendentes]),
+    writeln('  ╚══════════════════════════════════╝'),
+    nl,
     pausar.
 
 menu_filtros :-
