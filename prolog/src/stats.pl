@@ -3,7 +3,7 @@
     percentual_concluidas/3,
     razao_pendentes/4,
     gerar_stats_geral/10,
-    gerar_resumo/8
+    gerar_resumo/1
 ]).
 
 :- use_module(auth, [
@@ -45,12 +45,42 @@ gerar_stats_geral(Todas, Incompletas, Andamento, Feitas, Atrasadas, TotalN, Inco
     contar_tasks(Atrasadas, AtrasadasN).
 
 % busca as listas do usuario logado e devolve todos os numeros separados
-gerar_resumo(TotalN, IncompletasN, AndamentoN, FeitasN, AtrasadasN, Percent, NPendentes, TotalPendentes) :-
+gerar_resumo(Resumo) :-
     listar_tasks_usuario(Todas),
     filtrar_por_status(nao_feito, Incompletas),
     filtrar_por_status(em_progresso, Andamento),
     filtrar_por_status(feito, Feitas),
     filtrar_atrasadas(Atrasadas),
-    gerar_stats_geral(Todas, Incompletas, Andamento, Feitas, Atrasadas, TotalN, IncompletasN, AndamentoN, FeitasN, AtrasadasN),
+
+    gerar_stats_geral(
+        Todas,
+        Incompletas,
+        Andamento,
+        Feitas,
+        Atrasadas,
+        TotalN,
+        IncompletasN,
+        AndamentoN,
+        FeitasN,
+        AtrasadasN
+    ),
+
     percentual_concluidas(Todas, Feitas, Percent),
-    razao_pendentes(Todas, Incompletas, NPendentes, TotalPendentes).
+
+    razao_pendentes(
+        Todas,
+        Incompletas,
+        NPendentes,
+        TotalPendentes
+    ),
+
+    Resumo = resumo(
+        TotalN,
+        IncompletasN,
+        AndamentoN,
+        FeitasN,
+        AtrasadasN,
+        Percent,
+        NPendentes,
+        TotalPendentes
+    ).
