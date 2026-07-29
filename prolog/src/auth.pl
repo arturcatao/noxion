@@ -19,6 +19,7 @@ cadastrar_usuario(Login, Nome, Senha) :-
 
 login(Login, Senha) :-
     user(Login, _, Senha),
+    retractall(logged_in(_)),
     assertz(logged_in(Login)).
 
 logout :- retractall(logged_in(_)).

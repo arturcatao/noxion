@@ -25,7 +25,7 @@
 % auth
 
 criar_conta(Login, Nome, Senha) :-
-    cadastrar_usuario(Login, Nome, Senha).
+    cadastrar_usuario(Login, Nome, Senha),
 
 entrar(Login, Senha) :-
     login(Login, Senha).

@@ -1,6 +1,7 @@
 :- use_module('src/fachada').    
 :- use_module(library(readutil)).
 :- use_module(library(process)).
+:- use_module('src/db.pl', [user/3]).
 
 main :-
     writeln('=== NOXION ==='),
@@ -15,6 +16,7 @@ limpar_tela :-
     -> process_create(path(cmd), ['/c','cls'], [])
     ;  process_create(path(clear), [], [])
     ).
+
 
 pausar :-
     nl,
@@ -92,52 +94,71 @@ fazer_cadastro :-
 
     limpar_tela,
 
-    ( Login == "" ; Nome == "" ; Senha == "" ) ->
+    (
+        campos_vazios(Login, Nome, Senha)
+    ->
         writeln('Erro: nenhum campo pode ser vazio.'),
         pausar,
         menu_login
     ;
-        ( criar_conta(Login, Nome, Senha) ->
-            format('Conta criada com sucesso!~n'),
-            format('Bem-vindo, ~w!~n', [Nome]),
-            pausar,
-            menu_principal
-        ;
-            writeln('Erro: login já existe ou dados inválidos.'),
-            pausar,
-            menu_login
-        ).
+        cadastrar_e_entrar(Login, Nome, Senha)
+    ).
+
+campos_vazios(Login, Nome, Senha) :-
+    Login == "";
+    Nome == "";
+    Senha == "".
+
+cadastrar_e_entrar(Login, Nome, Senha) :-
+    criar_conta(Login, Nome, Senha),
+    format('Conta criada com sucesso!~n'),
+    format('Bem-vindo, ~w!~n', [Nome]),
+    pausar,
+    menu_principal.
+
+cadastrar_e_entrar(_, _, _) :-
+    writeln('Erro: login já existe ou dados inválidos.'),
+    pausar,
+    menu_login.
 
 mostrar_ajuda :-
     nl,
     writeln('  ╔══════════════════════════════════════════════════════╗'),
     writeln('  ║                 NOXION - Ajuda                       ║'),
     writeln('  ╠══════════════════════════════════════════════════════╣'),
-    writeln('  ║  Noxion e um sistema de gerenciamento de tarefas    ║'),
-    writeln('  ║  via terminal, desenvolvido em Prolog.              ║'),
+    writeln('  ║  Noxion e um sistema de gerenciamento de tarefas     ║'),
+    writeln('  ║  via terminal, desenvolvido em Prolog.               ║'),
     writeln('  ╠══════════════════════════════════════════════════════╣'),
-    writeln('  ║  CADASTRO                                           ║'),
-    writeln('  ║    1. Escolha [2] Cadastrar no menu inicial         ║'),
-    writeln('  ║    2. Digite um login unico                         ║'),
-    writeln('  ║    3. Digite seu nome                               ║'),
-    writeln('  ║    4. Digite uma senha                              ║'),
-    writeln('  ║    Apos o cadastro, voce sera logado automaticamente║'),
+    writeln('  ║  CADASTRO                                            ║'),
+    writeln('  ║    1. Escolha [2] Cadastrar no menu inicial          ║'),
+    writeln('  ║    2. Digite um login unico                          ║'),
+    writeln('  ║    3. Digite seu nome                                ║'),
+    writeln('  ║    4. Digite uma senha                               ║'),
+    writeln('  ║    Apos o cadastro, voce sera logado automaticamente ║'),
     writeln('  ╠══════════════════════════════════════════════════════╣'),
-    writeln('  ║  LOGIN                                              ║'),
-    writeln('  ║    1. Escolha [1] Login no menu inicial             ║'),
-    writeln('  ║    2. Digite seu login                              ║'),
-    writeln('  ║    3. Digite sua senha                              ║'),
-    writeln('  ║    Credenciais invalidas retornam ao menu           ║'),
+    writeln('  ║  LOGIN                                               ║'),
+    writeln('  ║    1. Escolha [1] Login no menu inicial              ║'),
+    writeln('  ║    2. Digite seu login                               ║'),
+    writeln('  ║    3. Digite sua senha                               ║'),
+    writeln('  ║    Credenciais invalidas retornam ao menu            ║'),
     writeln('  ╠══════════════════════════════════════════════════════╣'),
-    writeln('  ║  FUNCIONALIDADES                                    ║'),
-    writeln('  ║    - Criar tasks com titulo, descricao e prazo      ║'),
-    writeln('  ║    - Status: Nao Feito, Em Progresso, Feito         ║'),
-    writeln('  ║    - Prioridade: Baixa, Media, Alta                 ║'),
-    writeln('  ║    - Filtros por status, prioridade e atraso        ║'),
-    writeln('  ║    - Estatisticas gerais das suas tasks             ║'),
+    writeln('  ║  FUNCIONALIDADES                                     ║'),
+    writeln('  ║    - Criar tasks com titulo, descricao e prazo       ║'),
+    writeln('  ║    - Status: Nao Feito, Em Progresso, Feito          ║'),
+    writeln('  ║    - Prioridade: Baixa, Media, Alta                  ║'),
+    writeln('  ║    - Filtros por status, prioridade e atraso         ║'),
+    writeln('  ║    - Estatisticas gerais das suas tasks              ║'),
     writeln('  ╚══════════════════════════════════════════════════════╝'),
     pausar,
     menu_login.
+
+spaces(0, "").
+
+spaces(N, String) :-
+    N > 0,
+    N1 is N - 1,
+    spaces(N1, Rest),
+    string_concat(" ", Rest, String).
 
 menu_principal :-
     usuario_logado(Login),
@@ -145,22 +166,22 @@ menu_principal :-
 
     string_length(Nome, Tamanho),
     Espacos is max(0, 19 - Tamanho),
-    format('~*c', [Espacos, 0 ], Padding),
+    spaces(Espacos, Padding),
 
     nl,
     writeln(' ╔══════════════════════════════════╗'),
-    writeln(' ║         NOXION - Tasks          ║'),
+    writeln(' ║         NOXION - Tasks           ║'),
     format(' ║         Ola, ~w~w ║~n', [Nome, Padding]),
     writeln(' ╠══════════════════════════════════╣'),
-    writeln(' ║      [1] Criar task             ║'),
-    writeln(' ║      [2] Listar tasks           ║'),
-    writeln(' ║      [3] Alterar status         ║'),
-    writeln(' ║      [4] Alterar prioridade     ║'),
-    writeln(' ║      [5] Excluir task           ║'),
-    writeln(' ║      [6] Filtros                ║'),
-    writeln(' ║      [7] Estatisticas           ║'),
-    writeln(' ║      [8] Logout                 ║'),
-    writeln(' ║      [0] Sair                   ║'),
+    writeln(' ║      [1] Criar task              ║'),
+    writeln(' ║      [2] Listar tasks            ║'),
+    writeln(' ║      [3] Alterar status          ║'),
+    writeln(' ║      [4] Alterar prioridade      ║'),
+    writeln(' ║      [5] Excluir task            ║'),
+    writeln(' ║      [6] Filtros                 ║'),
+    writeln(' ║      [7] Estatisticas            ║'),
+    writeln(' ║      [8] Logout                  ║'),
+    writeln(' ║      [0] Sair                    ║'),
     writeln(' ╚══════════════════════════════════╝'),
     nl,
 
