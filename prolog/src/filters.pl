@@ -4,7 +4,7 @@
     filtrar_por_prioridade/2,
     ordenar_por_prioridade/2,
     ordenar_por_prazo/2,
-    listar_atrasadas/1
+    filtrar_atrasadas/1
 ]).
 
 :- use_module(db, [
@@ -12,8 +12,8 @@
     status/1,
     prioridade/1
 ]).
-:- use_module(auth, [
-    user_loggado/1
+:- use_module(fachada, [
+    usuario_logado/1
 ]).
 :- use_module(library(pairs)).
 
@@ -22,7 +22,8 @@
 %Listar todas as tarefas de um usuário
 
 
-listar_tasks_usuario(Login, Tarefas) :-
+listar_tasks_usuario(Tarefas) :-
+    usuario_logado(Login)
     findall(
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
@@ -35,7 +36,7 @@ listar_tasks_usuario(Login, Tarefas) :-
 
 filtrar_por_status(Status, Tarefas) :-
     status(Status),
-    user_loggado(Login),
+    usuario_logado(Login),
     findall(
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
@@ -44,7 +45,7 @@ filtrar_por_status(Status, Tarefas) :-
 
 filtrar_por_prioridade(Prioridade, Tarefas) :-
     prioridade(Prioridade),
-    user_loggado(Login),
+    usuario_logado(Login),
     findall(
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
@@ -81,16 +82,19 @@ chave_prazo(task(_, _, _, _, _, _, Prazo), Prazo).
 
 % Bônus / Atrasadas
 
-listar_atrasadas(Tarefas) :-
-    user_loggado(Login),
+filtrar_atrasadas(Tarefas) :-
+    usuario_logado(Login),
     get_time(Agora),
-    format_time(string(HojeStr), '%Y-%m-%d', Agora),
+    format_time(string(HojeBr), '%d/%m/%Y', Agora),
+    br_para_iso(HojeBr, HojeIso),
+
     findall(
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
         (
             task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
             Status \= feito,
-            Prazo @< HojeStr
+            br_para_iso(Prazo, PrazoIso),
+            PrazoIso @< HojeIso
         ),
         Tarefas
     ).

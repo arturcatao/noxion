@@ -25,7 +25,7 @@
 % auth
 
 criar_conta(Login, Nome, Senha) :-
-    cadastrar_usuario(Login, Nome, Senha),
+    cadastrar_usuario(Login, Nome, Senha).
 
 entrar(Login, Senha) :-
     login(Login, Senha).
@@ -53,7 +53,7 @@ atualizar_prioridade(Id, Prioridade) :-
 % filters
 
 listar_minhas_tasks(Tarefas) :-
-    listar_tasks(Tarefas).
+    listar_tasks_usuario(Tarefas).
 
 listar_por_status(Status, Tarefas) :-
     filtrar_por_status(Status, Tarefas).
@@ -62,7 +62,7 @@ listar_por_prioridade(Prioridade, Tarefas) :-
     filtrar_por_prioridade(Prioridade, Tarefas).
 
 listar_atrasadas(Tarefas) :-
-    listar_atrasadas(Tarefas).
+    filtrar_atrasadas(Tarefas).
 
 % stats
 

@@ -8,17 +8,19 @@
 ]).
 
 :-use_module(auth).
-:- dynamic task/7.
+:- use_module(db, [
+    task/7,
+    status/1,
+    prioridade/1
+]).
 
 %fatos simples/validacoes
 
-status_valido(nao_feito).
-status_valido(em_progresso).
-status_valido(feito).
+status_valido(Status) :-
+    status(Status).
 
-prioridade_valida(low).
-prioridade_valida(medium).
-prioridade_valida(high).
+prioridade_valida(Prioridade) :-
+    prioridade(Prioridade).
 
 %gerar id unico (ainda vou ver como fazer)
 proximo_id(Id) :-
@@ -47,16 +49,16 @@ remover_task(Id) :-
     task_existe(Id),
     retract(task(Id,_,_,_,_,_,_)).
 
-alterar_status(Id, novoStatus) :-
+alterar_status(Id, NovoStatus) :-
     task_existe(Id),
-    status_valido(novoStatus),
+    status_valido(NovoStatus),
     retract(task(Id, Login, Titulo, Desc, _, Prioridade, Prazo)),
-    assertz(task(Id, Login, Titulo, Desc, novoStatus, Prioridade, Prazo)).
+    assertz(task(Id, Login, Titulo, Desc, NovoStatus, Prioridade, Prazo)).
 
-alterar_prioridade(Id, novaPrioridade) :-
+alterar_prioridade(Id, NovaPrioridade) :-
     task_existe(Id),
-    prioridade_valida(novaPrioridade),
+    prioridade_valida(NovaPrioridade),
     retract(task(Id, Login, Titulo, Desc, Status, _, Prazo)),
-    assertz(task(Id, Login, Titulo, Desc, Status, novaPrioridade, Prazo)).
+    assertz(task(Id, Login, Titulo, Desc, Status, NovaPrioridade, Prazo)).
 
 %nos dois casos, excluimos o fato antigo e adicioa um novo, pois em PL nao existe modificar um fato existente
