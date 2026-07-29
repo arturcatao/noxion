@@ -298,7 +298,7 @@ listar_sem_pausa :-
         writeln('Nenhuma task.')
     ;
         nl,
-        listar_minhas_tasks(Tarefas),
+        imprimir_tasks(Tarefas),
         nl
     ).
 
@@ -438,7 +438,7 @@ acao_estatisticas :-
     format('  ║  Atrasadas:             ~w~n', [AtrasadasN]),
     writeln('  ╠══════════════════════════════════╣'),
     format('  ║  Percentual concluído:  ~w%~n', [Percent]),
-    format('  ║  Pendentes:             ~w de ~w~n', [NPendentes, TotalPendentes]),
+    format('  ║  Pendentes:             ~w de ~w~', [NPendentes, TotalPendentes]),
     writeln('  ╚══════════════════════════════════╝'),
     nl,
     pausar.
