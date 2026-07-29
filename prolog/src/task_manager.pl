@@ -21,7 +21,13 @@ prioridade_valida(medium).
 prioridade_valida(high).
 
 %gerar id unico (ainda vou ver como fazer)
-proximo_id(Id).
+proximo_id(Id) :-
+    findall(X, task(X, _, _, _, _, _, _), Ids),
+    ( Ids = []
+    -> Id = 1
+    ;  max_list(Ids, Max),
+       Id is Max + 1
+    ).
 
 %TaskEXISTE: Tenta encontrar um fato task com o id passado. 
 
