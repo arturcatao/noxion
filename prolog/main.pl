@@ -379,7 +379,116 @@ acao_alterar_prio(State, NovoState) :-
         NovoState = State
     ).
 
+nova_prio("2", medium).
+nova_prio("3", high).
+nova_prio(_, low).
+
+acao_excluir :-
+    listar_sem_pausa,
+
+    writeln('ID da task:'),
+    read_line_to_string(user_input, IdStr),
+
+    ( catch(number_string(Id, IdStr), _, fail) ->
+        ( excluir_task(Id) ->
+            writeln('Task removida!'),
+            pausar
+        ;
+            writeln('Task nao encontrada.'),
+            pausar
+        )
+    ;
+        writeln('ID invalido.'),
+        pausar
+    ).
+
+acao_estatisticas :-
+    resumo_estatisticas(Resumo),
+    writeln(Resumo),
+    pausar.
+
+menu_filtros :-
+    nl,
+    writeln('  ╔══════════════════════════════════╗'),
+    writeln('  ║         NOXION - Filtros         ║'),
+    writeln('  ╠══════════════════════════════════╣'),
+    writeln('  ║      [1] Por status             ║'),
+    writeln('  ║      [2] Por prioridade         ║'),
+    writeln('  ║      [3] Atrasadas              ║'),
+    writeln('  ║      [0] Voltar                 ║'),
+    writeln('  ╚══════════════════════════════════╝'),
+    nl,
+    write('Escolha: '),
+    read_line_to_string(user_input, Opcao),
+
+    limpar_tela,
+
+    tratar_opcao_filtros(Opcao).
+
+tratar_opcao_filtros("1") :-
+    acao_filtro_status.
+
+tratar_opcao_filtros("2") :-
+    acao_filtro_prioridade.
+
+tratar_opcao_filtros("3") :-
+    acao_atrasadas.
+
+tratar_opcao_filtros("0").
+
+tratar_opcao_filtros(_) :-
+    writeln('Opcao invalida.').
+
+acao_filtro_status :-
+    writeln('[1] NaoFeito  [2] EmProgresso  [3] Feito'),
+    write('Status: '),
+    read_line_to_string(user_input, Opcao),
+
+    escolher_status(Opcao, Status),
+
+    listar_por_status(Status, Tarefas),
+
+    ( Tarefas == [] ->
+        writeln('Nenhuma task com esse status.')
+    ;
+        imprimir_tasks(Tarefas)
+    ).
+
+escolher_status("2", em_progresso).
+escolher_status("3", feito).
+escolher_status(_, nao_feito).
+
+acao_filtro_prio(State, State) :-
+    writeln('\n[1] Low  [2] Medium  [3] High'),
+    write('Prioridade: '),
+    read_line_to_string(user_input, P),
+
+    nova_prio(P, Prioridade),
+
+    listar_por_prioridade(Prioridade, State, Tasks),
+
+    (
+        Tasks = []
+    ->
+        writeln('\nNenhuma task com essa prioridade.\n')
+    ;
+        mostrar_tasks(Tasks)
+    ).
 
 nova_prio("2", medium).
 nova_prio("3", high).
 nova_prio(_, low).
+
+mostrar_tasks([]).
+
+mostrar_tasks([Task|Resto]) :-
+    task_to_string(Task, Texto),
+    writeln(Texto),
+    mostrar_tasks(Resto).
+
+acao_atrasadas(State, State) :-
+    data_hoje(Hoje),
+    listar_atrasadas(Hoje, State, Tasks),
+    (Tasks = [] -> writeln('\nNenhuma task atrasada.\n') ;
+        mostrar_tasks(Tasks)
+    ).
