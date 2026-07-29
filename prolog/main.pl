@@ -401,10 +401,6 @@ acao_alterar_prio(State, NovoState) :-
         NovoState = State
     ).
 
-nova_prio("2", medium).
-nova_prio("3", high).
-nova_prio(_, low).
-
 acao_excluir :-
     listar_sem_pausa,
 
@@ -451,7 +447,7 @@ tratar_opcao_filtros("1") :-
     acao_filtro_status.
 
 tratar_opcao_filtros("2") :-
-    acao_filtro_prioridade.
+    acao_filtro_prio.
 
 tratar_opcao_filtros("3") :-
     acao_atrasadas.
@@ -480,33 +476,31 @@ escolher_status("2", em_progresso).
 escolher_status("3", feito).
 escolher_status(_, nao_feito).
 
-acao_filtro_prio(State, State) :-
+acao_filtro_prio :-
     writeln('\n[1] Low  [2] Medium  [3] High'),
     write('Prioridade: '),
     read_line_to_string(user_input, P),
 
     nova_prio(P, Prioridade),
 
-    listar_por_prioridade(Prioridade, State, Tasks),
+    listar_por_prioridade(Prioridade, Tasks),
 
     (
         Tasks = []
     ->
         writeln('\nNenhuma task com essa prioridade.\n')
     ;
-        mostrar_tasks(Tasks)
-    ).
+        imprimir_tasks(Tasks)
+    ),
+    pausar.
 
-mostrar_tasks([]).
-
-mostrar_tasks([Task|Resto]) :-
-    task_to_string(Task, Texto),
-    writeln(Texto),
-    mostrar_tasks(Resto).
+nova_prio("1", baixa).
+nova_prio("2", media).
+nova_prio("3", alta).
 
 acao_atrasadas(State, State) :-
     data_hoje(Hoje),
     listar_atrasadas(Hoje, State, Tasks),
     (Tasks = [] -> writeln('\nNenhuma task atrasada.\n') ;
-        mostrar_tasks(Tasks)
+        imprimir_tasks(Tasks)
     ).
