@@ -1,5 +1,5 @@
 :- module(filters, [
-    listar_tasks_usuario/2,
+    listar_tasks_usuario/1,
     filtrar_por_status/2,
     filtrar_por_prioridade/2,
     ordenar_por_prioridade/2,
@@ -23,7 +23,7 @@
 
 
 listar_tasks_usuario(Tarefas) :-
-    usuario_logado(Login)
+    usuario_logado(Login),
     findall(
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),
         task(Id, Login, Titulo, Descricao, Status, Prioridade, Prazo),

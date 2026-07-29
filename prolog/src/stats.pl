@@ -10,9 +10,9 @@
     user_loggado/1
 ]).
 :- use_module(filters, [
-    listar_tasks_usuario/2,
+    listar_tasks_usuario/1,
     filtrar_por_status/2,
-    listar_atrasadas/1
+    filtrar_atrasadas/1
 ]).
 
 % quantidade de tasks numa lista
@@ -46,12 +46,11 @@ gerar_stats_geral(Todas, Incompletas, Andamento, Feitas, Atrasadas, TotalN, Inco
 
 % busca as listas do usuario logado e devolve todos os numeros separados
 gerar_resumo(TotalN, IncompletasN, AndamentoN, FeitasN, AtrasadasN, Percent, NPendentes, TotalPendentes) :-
-    user_loggado(Login),
-    listar_tasks_usuario(Login, Todas),
+    listar_tasks_usuario(Todas),
     filtrar_por_status(nao_feito, Incompletas),
     filtrar_por_status(em_progresso, Andamento),
     filtrar_por_status(feito, Feitas),
-    listar_atrasadas(Atrasadas),
+    filtrar_atrasadas(Atrasadas),
     gerar_stats_geral(Todas, Incompletas, Andamento, Feitas, Atrasadas, TotalN, IncompletasN, AndamentoN, FeitasN, AtrasadasN),
     percentual_concluidas(Todas, Feitas, Percent),
     razao_pendentes(Todas, Incompletas, NPendentes, TotalPendentes).
