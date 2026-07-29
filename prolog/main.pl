@@ -205,7 +205,7 @@ tratar_opcao_principal("3") :-
     menu_principal.
 
 tratar_opcao_principal("4") :-
-    acao_alterar_prioridade,
+    acao_alterar_prio,
     menu_principal.
 
 tratar_opcao_principal("5") :-
@@ -302,73 +302,69 @@ listar_sem_pausa :-
         nl
     ).
 
-acao_alterar_status(State, NovoState) :-
-    listar_sem_pausa(State),
-    
+acao_alterar_status :-
+    listar_sem_pausa,
+
     write('\nID da task: '),
     read_line_to_string(user_input, TidStr),
 
-    number_string(Tid, TidStr),
+    ( number_string(Tid, TidStr) ->
+        listar_minhas_tasks(Tasks),
 
-    listar_minhas_tasks(State, Tasks),
+        ( member(Task, Tasks),
+          Task = task(Tid, _, Titulo, Desc, StatusAtual, Prioridade, Prazo) ->
 
-    ( 
-        member(Task, Tasks),
-        task_id(Task, Tid)
-    ->
-        limpar_tela,
+            limpar_tela,
 
-        task_to_string(Task, Texto),
-        writeln(Texto),
+            format('ID: ~w~nTitulo: ~w~nDescricao: ~w~nStatus: ~w~nPrioridade: ~w~nPrazo: ~w~n',
+                   [Tid, Titulo, Desc, StatusAtual, Prioridade, Prazo]),
 
-        writeln('\nAltere o status:'),
-        writeln('[1] NaoFeito'),
-        writeln('[2] EmProgresso'),
-        writeln('[3] Feito'),
-        write('Escolha: '),
+            writeln('\nAltere o status:'),
+            writeln('[1] NaoFeito'),
+            writeln('[2] EmProgresso'),
+            writeln('[3] Feito'),
+            write('Escolha: '),
 
-        read_line_to_string(user_input, S),
+            read_line_to_string(user_input, S),
+            novo_status(S, NovoStatus),
 
-        novo_status(S, Status),
-
-        (
-            atualizar_status(State, Tid, Status, NovoState)
-        ->
-            writeln('Status atualizado.'),
+            ( atualizar_status(Tid, NovoStatus) ->
+                writeln('Status atualizado.')
+            ;
+                writeln('Erro.')
+            ),
             pausar
+
         ;
-            writeln('Erro.'),
-            pausar,
-            NovoState = State
+            writeln('Task nao encontrada.'),
+            pausar
         )
 
     ;
-        writeln('Task nao encontrada.'),
-        pausar,
-        NovoState = State
+        writeln('ID invalido.'),
+        pausar
     ).
 
 novo_status("2", emProgresso).
 novo_status("3", feito).
 novo_status(_, naoFeito).
 
-acao_alterar_prio(State, NovoState) :-
-    listar_sem_pausa(State),
+acao_alterar_prio :-
+    listar_sem_pausa,
+
     write('\nID da task: '),
     read_line_to_string(user_input, TidStr),
 
-    (
-        number_string(Tid, TidStr)
-    ->
-        listar_minhas_tasks(State, Tasks),
+    ( number_string(Tid, TidStr) ->
+        listar_minhas_tasks(Tasks),
 
-        (
-            member(Task, Tasks),
-            task_id(Task, Tid)
-        ->
+        ( member(Task, Tasks),
+          Task = task(Tid, _, Titulo, Desc, Status, Prioridade, Prazo) ->
+
             limpar_tela,
-            task_to_string(Task, Texto),
-            writeln(Texto),
+
+            format('ID: ~w~nTitulo: ~w~nDescricao: ~w~nStatus: ~w~nPrioridade: ~w~nPrazo: ~w~n',
+                   [Tid, Titulo, Desc, Status, Prioridade, Prazo]),
 
             writeln('[1] Low'),
             writeln('[2] Medium'),
@@ -378,46 +374,55 @@ acao_alterar_prio(State, NovoState) :-
             read_line_to_string(user_input, P),
             nova_prio(P, NovaPrio),
 
-            (
-                atualizar_prioridade(State, Tid, NovaPrio, NovoState)
-            ->
-                writeln('Prioridade atualizada.'),
-                pausar
+            ( atualizar_prioridade(Tid, NovaPrio) ->
+                writeln('Prioridade atualizada.')
             ;
-                writeln('Erro.'),
-                pausar,
-                NovoState = State
-            )
-
-        ;
-            writeln('Task nao encontrada.'),
-            pausar,
-            NovoState = State
-        )
-
-    ;
-        writeln('ID invalido.'),
-        pausar,
-        NovoState = State
-    ).
-
-acao_excluir :-
-    listar_sem_pausa,
-
-    writeln('ID da task:'),
-    read_line_to_string(user_input, IdStr),
-
-    ( catch(number_string(Id, IdStr), _, fail) ->
-        ( excluir_task(Id) ->
-            writeln('Task removida!'),
+                writeln('Erro.')
+            ),
             pausar
+
         ;
             writeln('Task nao encontrada.'),
             pausar
         )
+
     ;
         writeln('ID invalido.'),
         pausar
+    ).
+
+acao_excluir :-
+    listar_minhas_tasks(Tasks),
+
+    (
+        Tasks == []
+    ->
+        writeln('Nenhuma task cadastrada.'),
+        pausar
+    ;
+        writeln('=== Suas Tasks ==='),
+        imprimir_tasks(Tasks),
+
+        nl,
+        write('ID da task que deseja excluir: '),
+        read_line_to_string(user_input, IdStr),
+
+        (
+            catch(number_string(Id, IdStr), _, fail)
+        ->
+            (
+                excluir_task(Id)
+            ->
+                writeln('Task removida com sucesso!'),
+                pausar
+            ;
+                writeln('Task nao encontrada.'),
+                pausar
+            )
+        ;
+            writeln('ID invalido.'),
+            pausar
+        )
     ).
 
 acao_estatisticas :-
@@ -443,10 +448,10 @@ menu_filtros :-
     writeln('  ╔══════════════════════════════════╗'),
     writeln('  ║         NOXION - Filtros         ║'),
     writeln('  ╠══════════════════════════════════╣'),
-    writeln('  ║      [1] Por status             ║'),
-    writeln('  ║      [2] Por prioridade         ║'),
-    writeln('  ║      [3] Atrasadas              ║'),
-    writeln('  ║      [0] Voltar                 ║'),
+    writeln('  ║      [1] Por status              ║'),
+    writeln('  ║      [2] Por prioridade          ║'),
+    writeln('  ║      [3] Atrasadas               ║'),
+    writeln('  ║      [0] Voltar                  ║'),
     writeln('  ╚══════════════════════════════════╝'),
     nl,
     write('Escolha: '),
@@ -479,11 +484,14 @@ acao_filtro_status :-
 
     listar_por_status(Status, Tarefas),
 
-    ( Tarefas == [] ->
+    ( 
+        Tarefas == []
+    ->
         writeln('Nenhuma task com esse status.')
     ;
-        listar_minhas_tasks(Tarefas)
-    ).
+        imprimir_tasks(Tarefas)
+    ),
+    pausar.
 
 escolher_status("2", em_progresso).
 escolher_status("3", feito).
@@ -511,9 +519,11 @@ nova_prio("1", baixa).
 nova_prio("2", media).
 nova_prio("3", alta).
 
-acao_atrasadas(State, State) :-
-    data_hoje(Hoje),
-    listar_atrasadas(Hoje, State, Tasks),
-    (Tasks = [] -> writeln('\nNenhuma task atrasada.\n') ;
+acao_atrasadas :-
+    listar_atrasadas(Tasks),
+    ( Tasks == [] ->
+        writeln('\nNenhuma task atrasada.\n')
+    ;
         imprimir_tasks(Tasks)
-    ).
+    ),
+    pausar.
