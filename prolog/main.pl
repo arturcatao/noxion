@@ -438,7 +438,7 @@ acao_estatisticas :-
     format('  ║  Atrasadas:             ~w~n', [AtrasadasN]),
     writeln('  ╠══════════════════════════════════╣'),
     format('  ║  Percentual concluído:  ~w%~n', [Percent]),
-    format('  ║  Pendentes:             ~w de ~w~', [NPendentes, TotalPendentes]),
+    format('  ║  Pendentes:             ~w de ~w~n', [NPendentes, TotalPendentes]),
     writeln('  ╚══════════════════════════════════╝'),
     nl,
     pausar.
