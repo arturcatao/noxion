@@ -4,6 +4,7 @@
 :- use_module('src/db.pl', [user/3]).
 
 main :-
+    limpar_tela,
     writeln('=== NOXION ==='),
     nl,
     menu_login.
@@ -70,7 +71,6 @@ fazer_login :-
     limpar_tela,
 
     ( entrar(Login, Senha) ->
-        usuario_logado(Login),
         format('Bem-vindo, ~w!~n', [Login]),
         menu_principal
     ;
@@ -110,6 +110,8 @@ campos_vazios(Login, Nome, Senha) :-
 
 cadastrar_e_entrar(Login, Nome, Senha) :-
     criar_conta(Login, Nome, Senha),
+    !,
+    entrar(Login, Senha),
     format('Conta criada com sucesso!~n'),
     format('Bem-vindo, ~w!~n', [Nome]),
     pausar,
@@ -275,19 +277,19 @@ acao_listar :-
         pausar
     ).
 
-imprimir_task_por_id(Id) :-
-    listar_minhas_tasks(Tarefas),
-    imprimir_task(Tarefas, Id).
+imprimir_tasks([]).
 
-imprimir_task([], _) :-
-    writeln('Task nao encontrada.').
-
-imprimir_task([Task|_], Id) :-
-    task_id(Task, Id),
-    imprimir_task(Task).
-
-imprimir_task([_|Resto], Id) :-
-    imprimir_task(Resto, Id).
+imprimir_tasks([
+    task(Id, _, Titulo, Descricao, Status, Prioridade, Prazo) | Rest
+]) :-
+    format('ID: ~w~n', [Id]),
+    format('Título: ~w~n', [Titulo]),
+    format('Descrição: ~w~n', [Descricao]),
+    format('Status: ~w~n', [Status]),
+    format('Prioridade: ~w~n', [Prioridade]),
+    format('Prazo: ~w~n', [Prazo]),
+    writeln('------------------------------'),
+    imprimir_tasks(Rest).
 
 listar_sem_pausa :-
     listar_minhas_tasks(Tarefas),
@@ -296,7 +298,7 @@ listar_sem_pausa :-
         writeln('Nenhuma task.')
     ;
         nl,
-        imprimir_tasks(Tarefas),
+        listar_minhas_tasks(Tarefas),
         nl
     ).
 
@@ -471,7 +473,7 @@ acao_filtro_status :-
     ( Tarefas == [] ->
         writeln('Nenhuma task com esse status.')
     ;
-        imprimir_tasks(Tarefas)
+        listar_minhas_tasks(Tarefas)
     ).
 
 escolher_status("2", em_progresso).

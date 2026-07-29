@@ -14,14 +14,18 @@ cadastrar_usuario(Login, Nome, Senha) :-
     string(Login),
     string(Nome),
     string(Senha),
-    \+ user(Login, _, _),
-    assertz(user(Login, Nome, Senha)).
+    Login \= "",
+    Nome \= "",
+    Senha \= "",
+    \+ db:user(Login, _, _),
+    assertz(db:user(Login, Nome, Senha)).
 
 login(Login, Senha) :-
-    user(Login, _, Senha),
-    retractall(logged_in(_)),
-    assertz(logged_in(Login)).
+    db:user(Login, _, Senha),
+    retractall(db:logged_in(_)),
+    assertz(db:logged_in(Login)).
 
-logout :- retractall(logged_in(_)).
+logout :-
+    retractall(db:logged_in(_)).
 
 user_loggado(Login) :- logged_in(Login).
