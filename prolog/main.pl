@@ -1,4 +1,4 @@
-:- use_module('src/fachada.pl').    
+:- use_module('src/fachada').    
 :- use_module(library(readutil)).
 :- use_module(library(process)).
 
@@ -474,10 +474,6 @@ acao_filtro_prio(State, State) :-
     ;
         mostrar_tasks(Tasks)
     ).
-
-nova_prio("2", medium).
-nova_prio("3", high).
-nova_prio(_, low).
 
 mostrar_tasks([]).
 

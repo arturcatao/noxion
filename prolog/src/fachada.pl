@@ -36,7 +36,7 @@ sair :-
 usuario_logado(Login) :-
     user_loggado(Login).
 
-& tasks
+% tasks
 
 criar_nova_task(Titulo, Desc, Prioridade, Prazo) :-
     adicionar_task(Titulo, Desc, Prioridade, Prazo).

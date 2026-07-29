@@ -80,7 +80,6 @@ ordenar_por_prazo(TarefasIn, TarefasOut) :-
 chave_prazo(task(_, _, _, _, _, _, Prazo), Prazo).
 
 % Bônus / Atrasadas
--
 
 listar_atrasadas(Tarefas) :-
     user_loggado(Login),
