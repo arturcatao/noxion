@@ -22,7 +22,7 @@ status_valido(Status) :-
 prioridade_valida(Prioridade) :-
     prioridade(Prioridade).
 
-%gerar id unico (ainda vou ver como fazer)
+%gerar id unico
 proximo_id(Id) :-
     findall(X, task(X, _, _, _, _, _, _), Ids),
     ( Ids = []
