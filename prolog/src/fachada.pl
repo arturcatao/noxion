@@ -8,6 +8,7 @@
     excluir_task/1,
     atualizar_status/2,
     atualizar_prioridade/2,
+    novo_status/2,
 
     listar_minhas_tasks/1,
     listar_por_status/2,
@@ -49,6 +50,10 @@ atualizar_status(Id, Status) :-
 
 atualizar_prioridade(Id, Prioridade) :-
     alterar_prioridade(Id, Prioridade).
+
+novo_status("1", nao_feito).
+novo_status("2", em_progresso).
+novo_status("3", feito).
 
 % filters
 

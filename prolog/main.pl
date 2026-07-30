@@ -345,10 +345,6 @@ acao_alterar_status :-
         pausar
     ).
 
-novo_status("2", emProgresso).
-novo_status("3", feito).
-novo_status(_, naoFeito).
-
 acao_alterar_prio :-
     listar_sem_pausa,
 
